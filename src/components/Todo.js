@@ -1,6 +1,5 @@
 import React from 'react';
 import TodoList from './TodoList';
-import Task from './Task';
 import '../styles/app.css';
  
 class Todo extends React.Component {
@@ -16,50 +15,39 @@ class Todo extends React.Component {
     }
 
     listOnChange = (e) => {
+        if(e.key === 'Enter'){
+            this.createList();
+            return;
+        }
         this.setState({title: e.target.value});
     }
 
     createList = () => {
         if(this.state.title){
-            this.setState({
-                title: '',
-                lists: [...this.state.lists, this.state.title]
-            });
-        }
-    }
-
-    taskOnChange = (e) => {
-        this.setState({task: e.target.value});
-    }
-
-    addTask = () => {
-        if(this.state.task){
-            let newTask = {
-                text: this.state.task,
-                key: Date.now()
+            let newList = {
+                title: this.state.title,
+                key: Date.now(),
+                tasks: []
             };
+
             this.setState({
-                items: [...this.state.items, newTask],
-                task: ''
+                lists: [...this.state.lists, newList],
+                title: ''
             });
         }
     }
 
     render(){
+        let lists = this.state.lists.map(list => <TodoList title={list.title} tasks={list.tasks} key={list.key} />);
+
         return (
             <div className="container">
                 <h1>Yeet.</h1>
-                <div className="new-list">
-                    <input autoFocus type="text" placeholder="Create a new list" value={this.state.title} onChange={this.listOnChange} />
+                <div className="create-list">
+                    <input autoFocus type="text" placeholder="Create a new list" value={this.state.title} onChange={this.listOnChange} onKeyPress={this.listOnChange} />
                     <button onClick={this.createList}>+</button>
                 </div>
-                {this.state.lists.length > 0 && (
-                    <div className="add-item">
-                        <input type="text" placeholder="What ya needa do" value={this.state.task} onChange={this.taskOnChange} />
-                        <button onClick={this.addTask}>+</button>
-                        <Task items={this.state.items} />
-                    </div>
-                )}
+                {lists}
             </div>
         );
     }
