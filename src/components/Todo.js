@@ -15,6 +15,7 @@ class Todo extends React.Component {
     }
 
     listOnChange = (e) => {
+        console.log(e.key);
         if(e.key === 'Enter'){
             this.createList();
             return;
@@ -29,7 +30,6 @@ class Todo extends React.Component {
                 key: Date.now(),
                 tasks: []
             };
-
             this.setState({
                 lists: [...this.state.lists, newList],
                 title: ''
@@ -42,12 +42,14 @@ class Todo extends React.Component {
             <div className="container">
                 <h1>Yeet.</h1>
                 <div className="create-list">
-                    <input autoFocus type="text" placeholder="Create a new list" value={this.state.title} onChange={this.listOnChange} onKeyPress={this.listOnChange} />
-                    <button onClick={this.createList}>Create</button>
+                    <input autoFocus type="text" className="list-text" placeholder="Create a new list" value={this.state.title} onChange={this.listOnChange} onKeyPress={this.listOnChange} />
+                    <button className="list-button" onClick={this.createList}>Create</button>
                 </div>
-                {this.state.lists.map(list => (
-                    <TodoList title={list.title} tasks={list.tasks} key={list.key} />
-                ))}
+                <div className="lists">
+                    {this.state.lists.map(list => (
+                        <TodoList title={list.title} tasks={list.tasks} key={list.key} />
+                    ))}
+                </div>
             </div>
         );
     }

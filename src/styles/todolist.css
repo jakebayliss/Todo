@@ -1,0 +1,26 @@
+.list {
+    width: 300px;
+    margin: 0 15px 15px;
+    padding: 0 15px;
+    background-color: rgb(50, 50, 50);
+    border-radius: 10px;
+}
+
+.task-text {
+    background-color: rgb(50, 50, 50);
+}
+
+.tasks {
+    list-style: none;
+    text-align: left;
+    padding-left: 0;
+    margin: 15px 0;
+}
+
+.task {
+    padding: 5px 10px;
+    background-color: rgb(25, 25, 25);
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-family: 'Muli', sans-serif;
+}

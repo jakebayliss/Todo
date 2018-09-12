@@ -7,7 +7,7 @@ class Task extends React.Component {
 
     render(){
         return(
-            <li key={this.props.key} className="task" >{this.props.text}</li>
+            <li className="task">{this.props.text}</li>
         );
     }
 }
