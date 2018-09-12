@@ -35,13 +35,12 @@ input:focus {
 
 button {
     font-family: 'Nunito', sans-serif;
-    font-size: 21px;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    font-size: 18px;
+    border-radius: 5px;
     background-color: yellowgreen;
     color: white;
     border: none;
+    cursor: pointer;
 }
 
 button:active {

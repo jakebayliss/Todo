@@ -38,16 +38,16 @@ class Todo extends React.Component {
     }
 
     render(){
-        let lists = this.state.lists.map(list => <TodoList title={list.title} tasks={list.tasks} key={list.key} />);
-
         return (
             <div className="container">
                 <h1>Yeet.</h1>
                 <div className="create-list">
                     <input autoFocus type="text" placeholder="Create a new list" value={this.state.title} onChange={this.listOnChange} onKeyPress={this.listOnChange} />
-                    <button onClick={this.createList}>+</button>
+                    <button onClick={this.createList}>Create</button>
                 </div>
-                {lists}
+                {this.state.lists.map(list => (
+                    <TodoList title={list.title} tasks={list.tasks} key={list.key} />
+                ))}
             </div>
         );
     }

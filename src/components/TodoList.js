@@ -7,13 +7,14 @@ class TodoList extends React.Component {
 
         this.state = {
             text: '',
-            tasks: []
+            tasks: props.tasks
         }
     }
 
     taskOnChange = (e) => {
         if(e.key === 'Enter'){
             this.addTask();
+            return;
         }
         this.setState({text: e.target.value});
     }
@@ -24,24 +25,25 @@ class TodoList extends React.Component {
                 text: this.state.text,
                 key: Date.now()
             };
+            
+
             this.setState({
-                items: [...this.state.items, newTask],
+                tasks: [...this.state.tasks, newTask],
                 text: ''
             });
         }
     }
 
     render() {
-        console.log(this.props.title);
-        let tasks = this.props.tasks.map(task => <Task text={task.text} key={task.key} />);
-
         return (
             <div className="list">
                 <h4>{this.props.title}</h4>
                 <input type="text" placeholder="What ya needa do" value={this.state.text} onChange={this.taskOnChange} />
-                <button onClick={this.addTask}>+</button>
+                <button onClick={this.addTask}>Add</button>
                 <ul>
-                    {tasks}
+                    {this.state.tasks.map(task => (
+                        <Task text={task.text} key={task.key} />
+                    ))}
                 </ul>
             </div>
         );
