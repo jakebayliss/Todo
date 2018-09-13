@@ -1,0 +1,34 @@
+.task {
+    padding: 5px 10px;
+    background-color: rgb(100, 100, 100);
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-family: 'Muli', sans-serif;
+    display: flex;
+    justify-content: space-between;
+    transition: background-color 1s;
+}
+
+.done {
+    background-color: rgb(25, 25, 25);
+    text-decoration: line-through rgb(25, 25, 25);
+    transition: all 1s;
+}
+
+.task-checkbox {
+    -webkit-appearance: none;
+    background-color: white;
+    transition: background-color 1s;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+}
+
+.task-checkbox:focus {
+    outline: none;
+}
+
+.task-checkbox:checked {
+    background-color: yellowgreen;
+    transition: background-color 1s;
+}
