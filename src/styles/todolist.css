@@ -6,6 +6,18 @@
     border-radius: 10px;
 }
 
+.list-banner {
+    display: flex;
+}
+
+.list-title {
+    font-family: 'Reem Kufi', sans-serif;
+    letter-spacing: 2px;
+    width: 100%;
+    text-align: center;
+    margin-left: 10px;
+}
+
 .task-text {
     background-color: rgb(50, 50, 50);
 }
@@ -23,4 +35,19 @@
     border-radius: 5px;
     margin-bottom: 5px;
     font-family: 'Muli', sans-serif;
+}
+
+.remove-list-button {
+    background-color: rgb(50, 50, 50);
+    color: rgb(100, 100, 100);
+    background-color: rgb(50, 50, 50);
+    color: rgb(100, 100, 100);
+    width: 25px;
+    height: 25px;
+    margin-right: -15px;
+}
+
+.remove-list-button:focus, .remove-list-button:hover {
+    color: rgb(200, 200, 200);
+    background-color: rgb(50, 50, 50);
 }

@@ -15,7 +15,6 @@ class Todo extends React.Component {
     }
 
     listOnChange = (e) => {
-        console.log(e.key);
         if(e.key === 'Enter'){
             this.createList();
             return;
@@ -37,6 +36,13 @@ class Todo extends React.Component {
         }
     }
 
+    removeList = (key) => {
+        let index = this.state.lists.findIndex(list => list.key === key);
+        let lists = this.state.lists;
+        lists.splice(index, 1);
+        this.setState({ lists: lists});
+    }
+
     render(){
         return (
             <div className="container">
@@ -47,7 +53,7 @@ class Todo extends React.Component {
                 </div>
                 <div className="lists">
                     {this.state.lists.map(list => (
-                        <TodoList title={list.title} tasks={list.tasks} key={list.key} />
+                        <TodoList title={list.title} tasks={list.tasks} key={list.key} removeEvent={this.removeList.bind(this, list.key)} />
                     ))}
                 </div>
             </div>

@@ -13,7 +13,6 @@ class TodoList extends React.Component {
     }
 
     taskOnChange = (e) => {
-        console.log(e.key);
         if(e.key === 'Enter'){
             this.addTask();
             return;
@@ -37,7 +36,10 @@ class TodoList extends React.Component {
     render() {
         return (
             <div className="list">
-                <h2>{this.props.title}</h2>
+                <div className="list-banner">
+                    <h2 className="list-title">{this.props.title}</h2>
+                    <button className="remove-list-button" onClick={this.props.removeEvent}>X</button>
+                </div>
                 <div className="add-task">
                     <input type="text" className="task-text" placeholder="What ya needa do" value={this.state.text} onChange={this.taskOnChange} />
                     <button className="task-button" onClick={this.addTask}>Add</button>
