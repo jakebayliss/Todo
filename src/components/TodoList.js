@@ -1,6 +1,8 @@
 import React from 'react';
 import Task from './Task';
+import EditContentHelper from '../editContentHelper.js';
 import '../styles/todolist.css';
+import editContentHelper from '../editContentHelper.js';
 
 class TodoList extends React.Component {
     constructor(props){
@@ -8,6 +10,7 @@ class TodoList extends React.Component {
 
         this.state = {
             text: '',
+            editing: false,
             tasks: props.tasks
         }
     }
@@ -34,10 +37,11 @@ class TodoList extends React.Component {
     }
 
     render() {
+        let Title = editContentHelper('h2');
         return (
             <div className="list">
                 <div className="list-banner">
-                    <h2 className="list-title">{this.props.title}</h2>
+                    <Title value={this.props.title} className="list-title"/>
                     <button className="remove-list-button" onClick={this.props.removeEvent}>X</button>
                 </div>
                 <div className="add-task">

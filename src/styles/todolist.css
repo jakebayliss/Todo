@@ -18,6 +18,11 @@
     margin-left: 10px;
 }
 
+.list-title:focus {
+    outline: none;
+    border-bottom: yellowgreen 1px solid;
+}
+
 .task-text {
     background-color: rgb(50, 50, 50);
 }
