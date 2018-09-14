@@ -9,6 +9,10 @@
     transition: background-color 1s;
 }
 
+.task-text {
+    margin-right: 20px;
+}
+
 .done {
     background-color: rgb(25, 25, 25);
     text-decoration: line-through rgb(25, 25, 25);

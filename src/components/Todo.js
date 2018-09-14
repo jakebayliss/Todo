@@ -8,9 +8,7 @@ class Todo extends React.Component {
 
         this.state = {
             title: '',
-            lists: [],
-            task: '',
-            items: []
+            lists: []
         };
     }
 
@@ -36,7 +34,8 @@ class Todo extends React.Component {
         }
     }
 
-    removeList = (key) => {
+    //Not sure if this is terrible or terrible
+    deleteList = (key) => {
         let index = this.state.lists.findIndex(list => list.key === key);
         let lists = this.state.lists;
         lists.splice(index, 1);
@@ -53,7 +52,7 @@ class Todo extends React.Component {
                 </div>
                 <div className="lists">
                     {this.state.lists.map(list => (
-                        <TodoList title={list.title} tasks={list.tasks} key={list.key} removeEvent={this.removeList.bind(this, list.key)} />
+                        <TodoList title={list.title} tasks={list.tasks} id={list.key} key={list.key} deleteList={this.deleteList.bind(this, list.key)}/>
                     ))}
                 </div>
             </div>
