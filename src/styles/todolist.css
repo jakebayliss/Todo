@@ -63,8 +63,13 @@
     height: 36px;
     margin: auto;
     margin-bottom: 10px;
+    border: rgb(50, 50, 50) 1px solid;
     border-radius: 50%;
-    background-color: rgb(100, 100, 100);
+    background-color: rgb(50, 50, 50);
+}
+
+.bin:hover {
+    border: white 2px solid !important;
 }
 
 .fa-trash-alt {

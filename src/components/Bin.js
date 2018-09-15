@@ -14,9 +14,10 @@ function collect(connect, monitor) {
 
 class Bin extends React.Component {
     render() {
-        const { isOver, canDrop, connectDropTarget } = this.props;
+        const { hovered, item, connectDropTarget } = this.props;
+        let border = hovered ? 'white 2px solid' : 'rgb(50, 50, 50) 2px solid';
         return connectDropTarget(
-            <div className="bin">
+            <div className="bin" style={{ border }}>
                 <i className="fas fa-trash-alt"></i>
             </div>
         );
