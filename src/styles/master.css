@@ -36,8 +36,11 @@ button  {
     cursor: pointer;
 }
 
-button:focus {
+button:active {
     background-color: white;
     color: yellowgreen;
+}
+
+button:focus {
     outline: none;
 }

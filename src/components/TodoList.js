@@ -1,5 +1,8 @@
 import React from 'react';
 import Task from './Task';
+import Bin from './Bin';
+import HTML5Backend from 'react-dnd-html5-backend'
+import { DragDropContext } from 'react-dnd'
 import '../styles/todolist.css';
 
 class TodoList extends React.Component {
@@ -57,6 +60,13 @@ class TodoList extends React.Component {
         this.setState({ title: e.target.value });
     }
 
+    deleteTask = (key) => {
+        let index = this.state.tasks.findIndex(task => task.key === key);
+        let tasks = this.state.tasks;
+        tasks.splice(index, 1);
+        this.setState({ tasks: tasks});
+    }
+
     render() {
         let viewDisplay = {};
         let editDisplay = {};
@@ -80,12 +90,15 @@ class TodoList extends React.Component {
                 </div>
                 <ul className ="tasks">
                     {this.state.tasks.map(task => (
-                        <Task text={task.text} key={task.key} />
+                        <Task task={task} key={task.key} handleDrop={(id) => this.deleteTask(id)}/>
                     ))}
                 </ul>
+                {this.state.tasks.length > 0 && (
+                    <Bin />
+                )}
             </div>
         );
     }
 }
 
-export default TodoList;
+export default DragDropContext(HTML5Backend)(TodoList)

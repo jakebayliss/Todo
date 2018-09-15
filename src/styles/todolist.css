@@ -55,3 +55,20 @@
     color: rgb(200, 200, 200);
     background-color: rgb(50, 50, 50);
 }
+
+.bin {
+    display: flex;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: auto;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    background-color: rgb(100, 100, 100);
+}
+
+.fa-trash-alt {
+    align-self: center;
+    width: 18px;
+    height: 18px;
+}
