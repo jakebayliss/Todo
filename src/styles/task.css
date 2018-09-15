@@ -36,3 +36,16 @@
     background-color: yellowgreen;
     transition: background-color 1s;
 }
+
+.delete-task-button {
+    background-color: rgb(100, 100, 100);
+    height: 20px;
+    opacity: 0.4;
+    margin-top: -2px;
+    margin-right: -4px;
+    color: black;
+}
+
+.delete-task-button:hover {
+    opacity: 1;
+}

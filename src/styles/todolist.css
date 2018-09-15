@@ -34,6 +34,11 @@
     background-color: rgb(50, 50, 50);
 }
 
+.task-button:active { 
+    background-color: white;
+    color: yellowgreen;
+}
+
 .tasks {
     list-style: none;
     text-align: left;

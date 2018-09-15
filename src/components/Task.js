@@ -55,11 +55,19 @@ class Task extends React.Component {
         this.setState({ done: true });
     }
 
+    deleteTask = (key) => {
+        this.props.delete(key);
+    }
+
     render(){
         const { isDragging, connectDragSource } = this.props;
         const opacity = isDragging ? 0 : 1;
         return connectDragSource(
-            <li className={this.state.done ? "task done" : "task"} style={{ opacity }}>{this.props.task.text}<input className="task-checkbox" checked={this.state.done} type="checkbox" onChange={this.completeTask}/></li>
+            <li className={this.state.done ? "task done" : "task"} style={{ opacity }}>
+                {this.props.task.text}
+                <input hidden={this.props.deleting} className="task-checkbox" checked={this.state.done} type="checkbox" onChange={this.completeTask}/>
+                <button className="delete-task-button" hidden={!this.props.deleting} onClick={this.deleteTask.bind(this, this.props.task.key)}>X</button>
+            </li>
         );
     }
 }

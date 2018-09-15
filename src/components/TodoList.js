@@ -14,6 +14,7 @@ class TodoList extends React.Component {
             title: '',
             previousValue: '',
             editing: false,
+            deleting: false,
             tasks: props.tasks
         }
     }
@@ -65,6 +66,18 @@ class TodoList extends React.Component {
         let tasks = this.state.tasks;
         tasks.splice(index, 1);
         this.setState({ tasks: tasks});
+
+        if(this.state.tasks.length == 0) {
+            this.setState({ deleting: false });
+        }
+    }
+
+    handleTaskDeleting = () => {
+        if(this.state.deleting) {
+            this.setState({ deleting: false });
+            return;
+        }
+        this.setState({ deleting: true });
     }
 
     render() {
@@ -90,11 +103,11 @@ class TodoList extends React.Component {
                 </div>
                 <ul className ="tasks">
                     {this.state.tasks.map(task => (
-                        <Task task={task} key={task.key} handleDrop={(id) => this.deleteTask(id)}/>
+                        <Task task={task} key={task.key} handleDrop={(id) => this.deleteTask(id)} deleting={this.state.deleting} delete={(key) => this.deleteTask(key)}/>
                     ))}
                 </ul>
                 {this.state.tasks.length > 0 && (
-                    <Bin />
+                    <Bin deleting={this.handleTaskDeleting} value={this.state.deleting}/>
                 )}
             </div>
         );

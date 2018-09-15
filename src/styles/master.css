@@ -36,11 +36,6 @@ button  {
     cursor: pointer;
 }
 
-button:active {
-    background-color: white;
-    color: yellowgreen;
-}
-
 button:focus {
     outline: none;
 }

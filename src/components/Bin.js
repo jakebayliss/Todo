@@ -15,9 +15,9 @@ function collect(connect, monitor) {
 class Bin extends React.Component {
     render() {
         const { hovered, item, connectDropTarget } = this.props;
-        let border = hovered ? 'white 2px solid' : 'rgb(50, 50, 50) 2px solid';
+        let border = hovered || this.props.value ? 'white 2px solid' : 'rgb(50, 50, 50) 2px solid';
         return connectDropTarget(
-            <div className="bin" style={{ border }}>
+            <div className="bin" style={{ border }} onClick={this.props.deleting}>
                 <i className="fas fa-trash-alt"></i>
             </div>
         );
