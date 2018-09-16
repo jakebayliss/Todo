@@ -20,6 +20,7 @@ class TodoList extends React.Component {
     }
 
     componentDidMount = () => {
+        document.getElementById(this.props.title + "-text").focus();
         this.setState({ title: this.props.title, previousValue: this.props.title })
     }
 
@@ -83,6 +84,7 @@ class TodoList extends React.Component {
     render() {
         let viewDisplay = {};
         let editDisplay = {};
+        let focus = !this.props.focus;
 
         if(this.state.editing) {
             viewDisplay.display = 'none';
@@ -94,11 +96,11 @@ class TodoList extends React.Component {
             <div className="list">
                 <div className="list-banner">
                     <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
-                    <input autoFocus className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} onChange={this.handleTitleChange} style={editDisplay} />
+                    <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} onChange={this.handleTitleChange} style={editDisplay} />
                     <button className="remove-list-button" onClick={this.props.deleteList}>X</button>
                 </div>
                 <div className="add-task">
-                    <input type="text" className="task-text" placeholder="What ya needa do" value={this.state.text} onChange={this.taskOnChange} onKeyDown={this.taskOnChange} />
+                    <input type="text" id={this.props.title + "-text"} className="task-text" placeholder="What ya needa do" value={this.state.text} onChange={this.taskOnChange} onKeyDown={this.taskOnChange} />
                     <button className="task-button" onClick={this.addTask}>Add</button>
                 </div>
                 <ul className ="tasks">
