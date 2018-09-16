@@ -3,10 +3,7 @@ import { DropTarget } from 'react-dnd';
 
 function collect(connect, monitor) {
     return {
-      // Call this function inside render()
-      // to let React DnD handle the drag events:
       connectDropTarget: connect.dropTarget(),
-      // You can ask the monitor about the current drag state:
       hovered: monitor.isOver(),
       item: monitor.getItem()
     };

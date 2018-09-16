@@ -15,7 +15,8 @@ class TodoList extends React.Component {
             previousValue: '',
             editing: false,
             deleting: false,
-            tasks: []
+            tasks: [],
+            completedTasks: 0
         }
     }
 
@@ -36,7 +37,8 @@ class TodoList extends React.Component {
         if(this.state.text){
             let newTask = {
                 text: this.state.text,
-                key: Date.now()
+                key: Date.now(),
+                done: false
             };
             this.setState({
                 tasks: [...this.state.tasks, newTask],
@@ -67,7 +69,11 @@ class TodoList extends React.Component {
         let index = this.state.tasks.findIndex(task => task.key === key);
         let tasks = this.state.tasks;
         tasks.splice(index, 1);
-        this.setState({ tasks: tasks});
+        this.setState({ tasks: tasks });
+
+        if(!tasks[index].done){
+            this.updateTaskCounter(false);
+        }
 
         if(this.state.tasks.length == 0) {
             this.setState({ deleting: false });
@@ -89,6 +95,25 @@ class TodoList extends React.Component {
         this.setState({ tasks: tasks });
     }
 
+    completeTask = (key, done) => {
+        let index = this.state.tasks.findIndex(task => task.key === key);
+        let tasks = this.state.tasks;
+        tasks[index].done = true;
+        this.setState({ tasks: tasks });
+
+        this.updateTaskCounter(done);
+    }
+
+    updateTaskCounter = (done) => {
+        if(done) {
+            this.setState({ completedTasks: this.state.completedTasks + 1 });
+            return;
+        }
+        if(!done && this.state.completedTasks > 0) {
+            this.setState({ completedTasks: this.state.completedTasks - 1 });
+        }
+    }
+
     render() {
         let viewDisplay = {};
         let editDisplay = {};
@@ -102,6 +127,9 @@ class TodoList extends React.Component {
         return (
             <div className="list">
                 <div className="list-banner">
+                    {this.state.tasks.length > 0 && (
+                        <p>{this.state.completedTasks}/{this.state.tasks.length}</p>
+                    )}
                     <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
                     <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} 
                         onChange={this.handleTitleChange} style={editDisplay} />
@@ -114,7 +142,7 @@ class TodoList extends React.Component {
                 </div>
                 <ul className ="tasks">
                     {this.state.tasks.map(task => (
-                        <Task task={task} key={task.key} editTask={(key, title) => this.editTask(key, title)} 
+                        <Task task={task} key={task.key} editTask={(key, title) => this.editTask(key, title)} completeTask={(key, value) => this.completeTask(key, value)}
                             handleDrop={(id) => this.deleteTask(id)} deleting={this.state.deleting} delete={(key) => this.deleteTask(key)}/>
                     ))}
                 </ul>
