@@ -15,7 +15,7 @@
     letter-spacing: 2px;
     width: 100%;
     text-align: center;
-    margin: 20px 0px 20px 10px;
+    margin: 20px 0;
 }
 
 .list-title.edit {
@@ -81,4 +81,9 @@
     align-self: center;
     width: 18px;
     height: 18px;
+}
+
+.counter {
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
 }

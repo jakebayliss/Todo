@@ -41,11 +41,11 @@ class Task extends React.Component {
 
     completeTask = () => {
         if(this.state.done) {
-            this.props.completeTask(this.props.task.key, false);
+            this.props.completeTask(this.props.task.key, true);
             this.setState({ done: false });
             return;
         }
-        this.props.completeTask(this.props.task.key, true);
+        this.props.completeTask(this.props.task.key, false);
         this.setState({ done: true });
     }
 

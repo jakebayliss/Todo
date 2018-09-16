@@ -68,15 +68,21 @@ class TodoList extends React.Component {
     deleteTask = (key) => {
         let index = this.state.tasks.findIndex(task => task.key === key);
         let tasks = this.state.tasks;
+
+        if(tasks[index]){
+            if(!tasks[index].done){
+                this.updateTaskCounter(null);
+            }
+            else {
+                this.updateTaskCounter(true);
+            }
+        }
+
         tasks.splice(index, 1);
         this.setState({ tasks: tasks });
 
-        if(!tasks[index].done){
-            this.updateTaskCounter(false);
-        }
-
         if(this.state.tasks.length == 0) {
-            this.setState({ deleting: false });
+            this.setState({ deleting: false, completedTasks: 0 });
         }
     }
 
@@ -95,21 +101,23 @@ class TodoList extends React.Component {
         this.setState({ tasks: tasks });
     }
 
-    completeTask = (key, done) => {
+    completeTask = (key, value) => {
         let index = this.state.tasks.findIndex(task => task.key === key);
         let tasks = this.state.tasks;
+
+        this.updateTaskCounter(value);
+
         tasks[index].done = true;
         this.setState({ tasks: tasks });
-
-        this.updateTaskCounter(done);
     }
 
     updateTaskCounter = (done) => {
-        if(done) {
+        console.log(done);
+        if(done == false) {
             this.setState({ completedTasks: this.state.completedTasks + 1 });
             return;
         }
-        if(!done && this.state.completedTasks > 0) {
+        if(done && this.state.completedTasks > 0) {
             this.setState({ completedTasks: this.state.completedTasks - 1 });
         }
     }
@@ -128,7 +136,7 @@ class TodoList extends React.Component {
             <div className="list">
                 <div className="list-banner">
                     {this.state.tasks.length > 0 && (
-                        <p>{this.state.completedTasks}/{this.state.tasks.length}</p>
+                        <p className="counter">{this.state.completedTasks}/{this.state.tasks.length}</p>
                     )}
                     <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
                     <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} 
