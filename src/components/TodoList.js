@@ -15,7 +15,7 @@ class TodoList extends React.Component {
             previousValue: '',
             editing: false,
             deleting: false,
-            tasks: props.tasks
+            tasks: []
         }
     }
 
@@ -54,6 +54,7 @@ class TodoList extends React.Component {
             if(!this.state.title) {
                 this.setState({title: this.state.previousValue});
             }
+            this.props.editList(this.props.id, this.state.title);
             this.setState({ editing: false });
         }
     }
@@ -81,10 +82,16 @@ class TodoList extends React.Component {
         this.setState({ deleting: true });
     }
 
+    editTask = (key, title) => {
+        let index = this.state.tasks.findIndex(task => task.key === key);
+        let tasks = this.state.tasks;
+        tasks[index].title = title;
+        this.setState({ tasks: tasks });
+    }
+
     render() {
         let viewDisplay = {};
         let editDisplay = {};
-        let focus = !this.props.focus;
 
         if(this.state.editing) {
             viewDisplay.display = 'none';
@@ -96,16 +103,19 @@ class TodoList extends React.Component {
             <div className="list">
                 <div className="list-banner">
                     <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
-                    <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} onChange={this.handleTitleChange} style={editDisplay} />
+                    <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} 
+                        onChange={this.handleTitleChange} style={editDisplay} />
                     <button className="remove-list-button" onClick={this.props.deleteList}>X</button>
                 </div>
                 <div className="add-task">
-                    <input type="text" id={this.props.title + "-text"} className="task-text" placeholder="What ya needa do" value={this.state.text} onChange={this.taskOnChange} onKeyDown={this.taskOnChange} />
+                    <input type="text" id={this.props.title + "-text"} className="task-text" placeholder="What ya needa do" 
+                        value={this.state.text} onChange={this.taskOnChange} onKeyDown={this.taskOnChange} />
                     <button className="task-button" onClick={this.addTask}>Add</button>
                 </div>
                 <ul className ="tasks">
                     {this.state.tasks.map(task => (
-                        <Task task={task} key={task.key} handleDrop={(id) => this.deleteTask(id)} deleting={this.state.deleting} delete={(key) => this.deleteTask(key)}/>
+                        <Task task={task} key={task.key} editTask={(key, title) => this.editTask(key, title)} 
+                            handleDrop={(id) => this.deleteTask(id)} deleting={this.state.deleting} delete={(key) => this.deleteTask(key)}/>
                     ))}
                 </ul>
                 {this.state.tasks.length > 0 && (

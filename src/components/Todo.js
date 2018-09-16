@@ -8,7 +8,6 @@ class Todo extends React.Component {
 
         this.state = {
             title: '',
-            focus: true,
             lists: []
         };
     }
@@ -25,13 +24,11 @@ class Todo extends React.Component {
         if(this.state.title){
             let newList = {
                 title: this.state.title,
-                key: Date.now(),
-                tasks: []
+                key: Date.now()
             };
             this.setState({
                 lists: [...this.state.lists, newList],
-                title: '',
-                focus: false
+                title: ''
             });
         }
     }
@@ -44,6 +41,13 @@ class Todo extends React.Component {
         this.setState({ lists: lists});
     }
 
+    editList = (key, title) => {
+        let index = this.state.lists.findIndex(list => list.key === key);
+        let lists = this.state.lists;
+        lists[index].title = title;
+        this.setState({ lists: lists });
+    }
+
     render(){
         return (
             <div className="container">
@@ -54,7 +58,7 @@ class Todo extends React.Component {
                 </div>
                 <div className="lists">
                     {this.state.lists.map(list => (
-                        <TodoList title={list.title} tasks={list.tasks} id={list.key} key={list.key} focus={this.state.focus}
+                        <TodoList title={list.title} id={list.key} key={list.key} editList={(key, title) => this.editList(key, title)}
                             deleteList={this.deleteList.bind(this, list.key)}/>
                     ))}
                 </div>

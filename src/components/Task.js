@@ -13,27 +13,13 @@ const taskSource = {
             return;
         }
         return props.handleDrop(props.task.key);
-        // When dropped on a compatible target, do something.
-        // Read the original dragged item from getItem():
-        const item = monitor.getItem();
-
-        // You may also read the drop result from the drop target
-        // that handled the drop, if it returned an object from
-        // its drop() method.
-        const dropResult = monitor.getDropResult();
-
-        // This is a good place to call some Flux action
-        CardActions.moveCardToList(item.id, dropResult.listId);
     }
 }
 
 function collect(connect, monitor) {
     return {
-      // Call this function inside render()
-      // to let React DnD handle the drag events:
       connectDragSource: connect.dragSource(),
       connectDragPreview: connect.dragPreview(),
-      // You can ask the monitor about the current drag state:
       isDragging: monitor.isDragging()
     };
   }
@@ -43,8 +29,14 @@ class Task extends React.Component {
         super(props);
 
         this.state = {
-            done: false
+            done: false,
+            title: '',
+            previousValue: ''
         }
+    }
+
+    componentDidMount = () => {
+        this.setState({ title: this.props.task.text, editing: false });
     }
 
     completeTask = () => {
@@ -59,15 +51,48 @@ class Task extends React.Component {
         this.props.delete(key);
     }
 
+    handleEdit = () => {
+        this.setState({ editing: true, previousValue: this.state.title });
+        document.getElementById(this.state.title).focus();
+    }
+
+    handleTaskChange = (e) => {
+        this.setState({ title: e.target.value })
+    }
+
+    handleDone = (e) => {
+        if(e.key === 'Enter'){
+            if(!this.state.title) {
+                this.setState({title: this.state.previousValue});
+            }
+            this.props.editTask(this.props.task.key, this.state.title);
+            this.setState({ editing: false });
+        }
+    }
+
     render(){
         const { isDragging, connectDragSource } = this.props;
         const opacity = isDragging ? 0 : 1;
+        let viewDisplay = {};
+        let editDisplay = {};
+
+        if(this.state.editing) {
+            viewDisplay.display = 'none';
+        }
+        else {
+            editDisplay.display = 'none';
+        }
+
         return connectDragSource(
-            <li className={this.state.done ? "task done" : "task"} style={{ opacity }}>
-                {this.props.task.text}
-                <input hidden={this.props.deleting} className="task-checkbox" checked={this.state.done} type="checkbox" onChange={this.completeTask}/>
-                <button className="delete-task-button" hidden={!this.props.deleting} onClick={this.deleteTask.bind(this, this.props.task.key)}>X</button>
-            </li>
+            <div draggable={!this.state.editing} className="task-container">
+                <li className={this.state.done ? "task done" : "task"} style={{ opacity }} onDoubleClick={this.handleEdit} style={viewDisplay}>
+                    {this.state.title}
+                    <input hidden={this.props.deleting} className="task-checkbox" checked={this.state.done} type="checkbox" onChange={this.completeTask} />
+                    <button className="delete-task-button" hidden={!this.props.deleting} onClick={this.deleteTask.bind(this, this.props.task.key)}>X</button>
+                </li>
+                <input type="text" autoFocus id={this.state.title} className="task-title edit" style={editDisplay} value={this.state.title} 
+                    onChange={this.handleTaskChange} onKeyDown={this.handleDone}/>
+            </div>
         );
     }
 }

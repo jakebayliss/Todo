@@ -1,4 +1,10 @@
+.task-container {
+    display: flex;
+    justify-content: center;
+}
+
 .task {
+    width: 100%;
     padding: 5px 10px;
     background-color: rgb(100, 100, 100);
     border-radius: 5px;
@@ -7,6 +13,20 @@
     display: flex;
     justify-content: space-between;
     transition: background-color 1s;
+}
+
+.task-title.edit {
+    height: 29px;
+    width: 282px;
+    padding: 0;
+    margin: 0 0 5px;
+    background-color: rgb(50, 50, 50);
+    font-size: 16px;
+}
+
+.task-title:focus {
+    outline: none;
+    border-bottom: yellowgreen 1px solid;
 }
 
 .task-text {
