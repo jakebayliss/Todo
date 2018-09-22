@@ -16,6 +16,10 @@
     margin-right: 20px;
 }
 
+.list-button {
+    background-color: yellowgreen;
+}
+
 .list-button:active {
     background-color: white;
     color: yellowgreen;

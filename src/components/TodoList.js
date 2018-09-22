@@ -4,6 +4,7 @@ import Bin from './Bin';
 import HTML5Backend from 'react-dnd-html5-backend'
 import { DragDropContext } from 'react-dnd'
 import '../styles/todolist.css';
+import update from 'immutability-helper';
 
 class TodoList extends React.Component {
     constructor(props){
@@ -38,7 +39,8 @@ class TodoList extends React.Component {
             let newTask = {
                 text: this.state.text,
                 key: Date.now(),
-                done: false
+                done: false,
+                index: this.state.tasks.length
             };
             this.setState({
                 tasks: [...this.state.tasks, newTask],
@@ -66,23 +68,25 @@ class TodoList extends React.Component {
     }
 
     deleteTask = (key) => {
-        let index = this.state.tasks.findIndex(task => task.key === key);
-        let tasks = this.state.tasks;
+        if(this.state.deleting) {
+            let index = this.state.tasks.findIndex(task => task.key === key);
+            let tasks = this.state.tasks;
 
-        if(tasks[index]){
-            if(!tasks[index].done){
-                this.updateTaskCounter(null);
+            if(tasks[index]){
+                if(!tasks[index].done){
+                    this.updateTaskCounter(null);
+                }
+                else {
+                    this.updateTaskCounter(true);
+                }
             }
-            else {
-                this.updateTaskCounter(true);
+
+            tasks.splice(index, 1);
+            this.setState({ tasks: tasks });
+
+            if(this.state.tasks.length == 0) {
+                this.setState({ deleting: false, completedTasks: 0 });
             }
-        }
-
-        tasks.splice(index, 1);
-        this.setState({ tasks: tasks });
-
-        if(this.state.tasks.length == 0) {
-            this.setState({ deleting: false, completedTasks: 0 });
         }
     }
 
@@ -112,7 +116,6 @@ class TodoList extends React.Component {
     }
 
     updateTaskCounter = (done) => {
-        console.log(done);
         if(done == false) {
             this.setState({ completedTasks: this.state.completedTasks + 1 });
             return;
@@ -120,6 +123,28 @@ class TodoList extends React.Component {
         if(done && this.state.completedTasks > 0) {
             this.setState({ completedTasks: this.state.completedTasks - 1 });
         }
+    }
+
+    moveTask = (dragIndex, hoverIndex) => {
+        const { tasks } = this.state
+        const dragTask = tasks[dragIndex]
+
+		this.setState(
+			update(this.state, {
+				tasks: {
+					$splice: [[dragIndex, 1], [hoverIndex, 0, dragTask]],
+				},
+			}),
+        );
+    }
+    
+    resetIndex = () => {
+        var tasks = this.state.tasks;
+        console.log(tasks);
+        tasks.map((task, i) => {
+            task.index = i;
+        });
+        this.setState({ tasks: tasks });
     }
 
     render() {
@@ -141,7 +166,7 @@ class TodoList extends React.Component {
                     <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
                     <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} 
                         onChange={this.handleTitleChange} style={editDisplay} />
-                    <button className="remove-list-button" onClick={this.props.deleteList}>X</button>
+                    <button className="remove-list-button" onClick={this.props.deleteList}>&times;</button>
                 </div>
                 <div className="add-task">
                     <input type="text" id={this.props.title + "-text"} className="task-text" placeholder="What ya needa do" 
@@ -150,8 +175,9 @@ class TodoList extends React.Component {
                 </div>
                 <ul className ="tasks">
                     {this.state.tasks.map(task => (
-                        <Task task={task} key={task.key} editTask={(key, title) => this.editTask(key, title)} completeTask={(key, value) => this.completeTask(key, value)}
-                            handleDrop={(id) => this.deleteTask(id)} deleting={this.state.deleting} delete={(key) => this.deleteTask(key)}/>
+                        <Task task={task} key={task.key} index={task.index} moveTask={this.moveTask} editTask={(key, title) => this.editTask(key, title)} completeTask={(key, value) => this.completeTask(key, value)}
+                            handleDrop={(id) => this.deleteTask(id)} deleting={this.state.deleting} delete={(key) => this.deleteTask(key)}
+                            resetIndex={this.resetIndex}/>
                     ))}
                 </ul>
                 {this.state.tasks.length > 0 && (

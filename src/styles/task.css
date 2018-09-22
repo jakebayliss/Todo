@@ -1,6 +1,8 @@
 .task-container {
     display: flex;
     justify-content: center;
+    background-color: transparent;
+    margin-bottom: 5px;
 }
 
 .task {
@@ -8,7 +10,6 @@
     padding: 5px 10px;
     background-color: rgb(100, 100, 100);
     border-radius: 5px;
-    margin-bottom: 5px;
     font-family: 'Muli', sans-serif;
     display: flex;
     justify-content: space-between;
@@ -58,10 +59,11 @@
 }
 
 .delete-task-button {
-    background-color: rgb(100, 100, 100);
-    height: 20px;
+    background-color: transparent;
     opacity: 0.4;
-    margin-top: -2px;
+    font-size: 24px;
+    height: 25px;
+    margin-top: -7px;
     margin-right: -4px;
     color: black;
 }
