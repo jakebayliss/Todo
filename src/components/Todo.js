@@ -33,7 +33,6 @@ class Todo extends React.Component {
         }
     }
 
-    //Not sure if this is terrible or terrible
     deleteList = (key) => {
         let index = this.state.lists.findIndex(list => list.key === key);
         let lists = this.state.lists;

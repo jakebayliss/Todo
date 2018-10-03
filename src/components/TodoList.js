@@ -15,7 +15,6 @@ class TodoList extends React.Component {
             title: '',
             previousValue: '',
             editing: false,
-            deleting: false,
             tasks: [],
             completedTasks: 0
         }
@@ -68,34 +67,24 @@ class TodoList extends React.Component {
     }
 
     deleteTask = (key) => {
-        if(this.state.deleting) {
-            let index = this.state.tasks.findIndex(task => task.key === key);
-            let tasks = this.state.tasks;
+        let index = this.state.tasks.findIndex(task => task.key === key);
+        let tasks = this.state.tasks;
 
-            if(tasks[index]){
-                if(!tasks[index].done){
-                    this.updateTaskCounter(null);
-                }
-                else {
-                    this.updateTaskCounter(true);
-                }
+        if(tasks[index]){
+            if(!tasks[index].done){
+                this.updateTaskCounter(null);
             }
-
-            tasks.splice(index, 1);
-            this.setState({ tasks: tasks });
-
-            if(this.state.tasks.length == 0) {
-                this.setState({ deleting: false, completedTasks: 0 });
+            else {
+                this.updateTaskCounter(true);
             }
         }
-    }
 
-    handleTaskDeleting = () => {
-        if(this.state.deleting) {
-            this.setState({ deleting: false });
-            return;
+        tasks.splice(index, 1);
+        this.setState({ tasks: tasks });
+
+        if(this.state.tasks.length == 0) {
+            this.setState({ completedTasks: 0 });
         }
-        this.setState({ deleting: true });
     }
 
     editTask = (key, title) => {
@@ -140,7 +129,6 @@ class TodoList extends React.Component {
     
     resetIndex = () => {
         var tasks = this.state.tasks;
-        console.log(tasks);
         tasks.map((task, i) => {
             task.index = i;
         });
@@ -171,18 +159,15 @@ class TodoList extends React.Component {
                 <div className="add-task">
                     <input type="text" id={this.props.title + "-text"} className="task-text" placeholder="What ya needa do" 
                         value={this.state.text} onChange={this.taskOnChange} onKeyDown={this.taskOnChange} />
-                    <button className="task-button" onClick={this.addTask}>Add</button>
+                    <button className="task-button" onClick={this.addTask}>&#43;</button>
                 </div>
                 <ul className ="tasks">
                     {this.state.tasks.map(task => (
                         <Task task={task} key={task.key} index={task.index} moveTask={this.moveTask} editTask={(key, title) => this.editTask(key, title)} completeTask={(key, value) => this.completeTask(key, value)}
-                            handleDrop={(id) => this.deleteTask(id)} deleting={this.state.deleting} delete={(key) => this.deleteTask(key)}
+                            delete={(key) => this.deleteTask(key)} 
                             resetIndex={this.resetIndex}/>
                     ))}
                 </ul>
-                {this.state.tasks.length > 0 && (
-                    <Bin deleting={this.handleTaskDeleting} value={this.state.deleting}/>
-                )}
             </div>
         );
     }

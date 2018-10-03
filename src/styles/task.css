@@ -7,22 +7,26 @@
 
 .task {
     width: 100%;
-    padding: 5px 10px;
+    padding: 5px 3px;
     background-color: rgb(100, 100, 100);
     border-radius: 5px;
     font-family: 'Muli', sans-serif;
     display: flex;
     justify-content: space-between;
-    transition: background-color 1s;
+    transition: background-color .5s;
 }
 
-.task-title.edit {
-    height: 29px;
-    width: 282px;
-    padding: 0;
-    margin: 0 0 5px;
-    background-color: rgb(50, 50, 50);
-    font-size: 16px;
+.task:hover {
+    background-color: rgb(150, 150, 150);
+    transition: background-color 0s;
+}
+
+.task.done:hover {
+    background-color: rgb(25, 25, 25);
+}
+
+.task-inner {
+    display: flex;
 }
 
 .task-title:focus {
@@ -47,6 +51,7 @@
     border-radius: 50%;
     width: 14px;
     height: 14px;
+    margin-right: 8px;
 }
 
 .task-checkbox:focus {
@@ -60,14 +65,22 @@
 
 .delete-task-button {
     background-color: transparent;
-    opacity: 0.4;
-    font-size: 24px;
-    height: 25px;
-    margin-top: -7px;
-    margin-right: -4px;
-    color: black;
+    font-size: 26px;
+    line-height: 10px;
+    color: white;
 }
 
 .delete-task-button:hover {
-    opacity: 1;
+    opacity: .4;
+}
+
+.edit-task-button { 
+    background-color: transparent;
+    color: white;
+    font-size: 22px;
+    line-height: 16px;
+}
+
+.edit-task-button:hover {
+    color: rgb(50, 50, 50);
 }

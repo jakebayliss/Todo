@@ -1,0 +1,54 @@
+.modal-overlay {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(55, 55, 55, 0.75);
+}
+
+.modal {
+    background: rgb(100, 100, 100, .4);
+    border-radius: 6px;
+    padding: 20px;
+    width: 450px;
+    margin: 100px auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.modal-title {
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: transparent;
+}
+
+.modal-notes {
+    width: 100%;
+    height: 100px;
+    padding: 0;
+    outline: none;
+    border: white 1px solid;
+    color: white;
+    font-size: 16px;
+    background-color: rgba(200, 200, 200, .4);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.modal-save {
+    background-color: yellowgreen;
+    margin-right: 10px;
+}
+.modal-delete {
+    background-color: tomato;
+    margin-left: 10px;
+}
+
+.modal-cancel {
+    background-color: dimgrey;
+}

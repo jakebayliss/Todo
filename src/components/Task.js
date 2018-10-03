@@ -2,7 +2,9 @@ import React from 'react';
 import { findDOMNode } from 'react-dom'
 import { DragSource, DropTarget } from 'react-dnd';
 import flow from 'lodash.flow';
+import TaskModal from './TaskModal';
 import '../styles/task.css';
+import '../styles/modal.css';
 
 const taskSource = {
     beginDrag(props) {
@@ -14,8 +16,6 @@ const taskSource = {
         if(!monitor.didDrop()){
             return;
         }
-
-        return props.handleDrop(props.task.key);
     }
 }
 
@@ -71,12 +71,13 @@ class Task extends React.Component {
         this.state = {
             done: false,
             title: '',
-            previousValue: ''
-        }
+            previousValue: '',
+            modalIsOpen: false,
+            notes: ''
+        };
     }
 
     componentDidMount = () => {
-        console.log(this.props.task);
         this.setState({ title: this.props.task.text, editing: false });
     }
 
@@ -90,56 +91,46 @@ class Task extends React.Component {
         this.setState({ done: true });
     }
 
-    deleteTask = (key) => {
-        this.props.delete(key);
+    deleteTask = () => {
+        this.props.delete(this.props.task.key);
+        this.setState({ modalIsOpen: false });
     }
 
-    handleEdit = () => {
-        this.setState({ editing: true, previousValue: this.state.title });
-        document.getElementById(this.state.title).focus();
+    openModal = () => {
+        this.setState({ modalIsOpen: true });
     }
 
-    handleTaskChange = (e) => {
-        this.setState({ title: e.target.value });
+    saveChanges = (newTitle, notes) => {
+        this.setState({ modalIsOpen: false, title: newTitle, notes: notes });
     }
 
-    handleDone = (e) => {
-        if(e.key === 'Enter'){
-            if(!this.state.title) {
-                this.setState({title: this.state.previousValue});
-            }
-            this.props.editTask(this.props.task.key, this.state.title);
-            this.setState({ editing: false });
-        }
+    cancel = () => {
+        this.setState({ modalIsOpen: false });
     }
 
     render(){
         const { isDragging, connectDragSource, connectDropTarget } = this.props
-        let viewDisplay = {};
-        let editDisplay = {};
 
-        if(this.state.editing) {
-            viewDisplay.display = 'none';
-
-        }
-        else {
-            editDisplay.display = 'none';
-        }
-        viewDisplay.opacity = isDragging ? 0 : 1;
+        let opacity = isDragging ? 0 : 1;
 
         return (
             connectDragSource &&
             connectDropTarget &&
             connectDragSource(
                 connectDropTarget(
-                    <div draggable={!this.state.editing && this.props.deleting} className="task-container">
-                        <li className={this.state.done ? "task done" : "task"} style={viewDisplay} onDoubleClick={this.handleEdit}>
-                            {this.state.title}
-                            <input hidden={this.props.deleting} className="task-checkbox" checked={this.state.done} type="checkbox" onChange={this.completeTask} />
-                            <button className="delete-task-button" hidden={!this.props.deleting} onClick={this.props.delete(this.props.task.key)}>&times;</button>
+                    <div className="task-container">
+                        <li className={this.state.done ? "task done" : "task"} style={{opacity}} onDoubleClick={this.openModal}>
+                            <div className="task-inner">
+                                <input className="task-checkbox" checked={this.state.done} type="checkbox" onChange={this.completeTask} />
+                                {this.state.title}
+                            </div>
+                            <button className="edit-task-button" onClick={this.openModal} hidden={this.state.done}>&#9998;</button>
+                            <button className="delete-task-button" hidden={!this.state.done} onClick={this.deleteTask}>&times;</button>
                         </li>
-                        <input type="text" autoFocus id={this.state.title} className="task-title edit" style={editDisplay} value={this.state.title} 
-                            onChange={this.handleTaskChange} onKeyDown={this.handleDone}/>
+                        {this.state.modalIsOpen && (
+                            <TaskModal task={this.props.task} title={this.state.title} notes={this.state.notes} delete={this.deleteTask} isOpen={this.state.modalIsOpen} save={this.saveChanges}
+                                cancel={this.cancel} />
+                        )}
                     </div>
                 ),
             )

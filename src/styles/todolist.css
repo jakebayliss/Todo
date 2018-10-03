@@ -36,6 +36,9 @@
 
 .task-button {
     background-color: yellowgreen;
+    border-radius: 50%;
+    font-size: 25px;
+    line-height: 26px;
 }
 
 .task-button:active { 
