@@ -52,7 +52,7 @@ class TaskModal extends React.Component {
                 <div id={this.props.title + " modal"} className="modal" style={style} onKeyDown={this.handleEnterEsc}>
                     <div className="modal-content">
                         <input id="title-edit" className="modal-title" type="text" value={this.state.title} onChange={this.handleTaskChange} onKeyDown={this.handleEnterEsc} />
-                        <label>Notes</label>
+                        <label className="notes-label">Notes</label>
                         <textarea id="notes" className="modal-notes" onChange={this.handleNotesChange} value={this.state.notes}></textarea>
                     </div>
                     <div className="modal-buttons">

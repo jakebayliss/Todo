@@ -20,6 +20,10 @@
     background-color: yellowgreen;
 }
 
+.list-button:hover {
+    background-color: rgb(125, 170, 0);
+}
+
 .list-button:active {
     background-color: white;
     color: yellowgreen;

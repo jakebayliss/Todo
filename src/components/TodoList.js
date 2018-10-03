@@ -1,10 +1,69 @@
 import React from 'react';
 import Task from './Task';
-import Bin from './Bin';
 import HTML5Backend from 'react-dnd-html5-backend'
-import { DragDropContext } from 'react-dnd'
+import { findDOMNode } from 'react-dom'
+import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
+import flow from 'lodash.flow';
 import '../styles/todolist.css';
 import update from 'immutability-helper';
+
+const listSource = {
+    beginDrag(props) {
+        return (
+            props.list
+        );
+    },
+    endDrag(props, monitor, component) {
+        if(!monitor.didDrop()){
+            return;
+        }
+    }
+}
+
+const listTarget = {
+	hover(props, monitor, component) {
+		if (!component) {
+			return null
+		}
+        const dragIndex = monitor.getItem().index;
+		const hoverIndex = props.index;
+
+		// Don't replace items with themselves
+		if (dragIndex === hoverIndex) {
+			return;
+		}
+
+		// Determine rectangle on screen
+		const hoverBoundingRect = (findDOMNode(
+			component,
+		)).getBoundingClientRect();
+
+		// Get vertical middle
+		const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+		// Determine mouse position
+		const clientOffset = monitor.getClientOffset();
+
+		// Get pixels to the top
+		const hoverClientY = (clientOffset).y - hoverBoundingRect.top;
+
+		// Only perform the move when the mouse has crossed half of the items height
+		// When dragging downwards, only move when the cursor is below 50%
+		// When dragging upwards, only move when the cursor is above 50%
+		// Dragging downwards
+		if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+			return;
+		}
+
+		// Dragging upwards
+		if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+			return;
+        }
+
+        props.moveList(dragIndex, hoverIndex);
+        props.resetIndex();
+	}
+}
 
 class TodoList extends React.Component {
     constructor(props){
@@ -136,6 +195,7 @@ class TodoList extends React.Component {
     }
 
     render() {
+        const { isDragging, connectDragSource, connectDropTarget } = this.props
         let viewDisplay = {};
         let editDisplay = {};
 
@@ -145,32 +205,51 @@ class TodoList extends React.Component {
         else {
             editDisplay.display = 'none';
         }
+
+        viewDisplay.opacity = isDragging ? 0 : 1;
+
         return (
-            <div className="list">
-                <div className="list-banner">
-                    {this.state.tasks.length > 0 && (
-                        <p className="counter">{this.state.completedTasks}/{this.state.tasks.length}</p>
-                    )}
-                    <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
-                    <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} 
-                        onChange={this.handleTitleChange} style={editDisplay} />
-                    <button className="remove-list-button" onClick={this.props.deleteList}>&times;</button>
-                </div>
-                <div className="add-task">
-                    <input type="text" id={this.props.title + "-text"} className="task-text" placeholder="What ya needa do" 
-                        value={this.state.text} onChange={this.taskOnChange} onKeyDown={this.taskOnChange} />
-                    <button className="task-button" onClick={this.addTask}>&#43;</button>
-                </div>
-                <ul className ="tasks">
-                    {this.state.tasks.map(task => (
-                        <Task task={task} key={task.key} index={task.index} moveTask={this.moveTask} editTask={(key, title) => this.editTask(key, title)} completeTask={(key, value) => this.completeTask(key, value)}
-                            delete={(key) => this.deleteTask(key)} 
-                            resetIndex={this.resetIndex}/>
-                    ))}
-                </ul>
-            </div>
+            connectDragSource &&
+            connectDropTarget &&
+            connectDragSource(
+                connectDropTarget(
+                    <div className="list">
+                        <div className="list-banner">
+                            {this.state.tasks.length > 0 && (
+                                <p className="counter">{this.state.completedTasks}/{this.state.tasks.length}</p>
+                            )}
+                            <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
+                            <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} 
+                                onChange={this.handleTitleChange} style={editDisplay} />
+                            <button className="remove-list-button" onClick={this.props.deleteList}>&times;</button>
+                        </div>
+                        <div className="add-task">
+                            <input type="text" id={this.props.title + "-text"} className="task-text" placeholder="What ya needa do" 
+                                value={this.state.text} onChange={this.taskOnChange} onKeyDown={this.taskOnChange} />
+                            <button className="task-button" onClick={this.addTask}>&#43;</button>
+                        </div>
+                        <ul className ="tasks">
+                            {this.state.tasks.map(task => (
+                                <Task task={task} key={task.key} index={task.index} moveTask={this.moveTask} editTask={(key, title) => this.editTask(key, title)} completeTask={(key, value) => this.completeTask(key, value)}
+                                    delete={(key) => this.deleteTask(key)} 
+                                    resetIndex={this.resetIndex}/>
+                            ))}
+                        </ul>
+                    </div>
+                ),
+            )
         );
     }
 }
-
-export default DragDropContext(HTML5Backend)(TodoList)
+export default flow(
+    DragSource('todolist',
+	    listSource,
+	    (connect, monitor) => ({
+		    connectDragSource: connect.dragSource(),
+		    isDragging: monitor.isDragging(),
+        }),),
+     DropTarget('todolist', listTarget, (connect) => ({
+        connectDropTarget: connect.dropTarget(),
+    })))
+    (TodoList);
+//export default DragDropContext(HTML5Backend)(TodoList)

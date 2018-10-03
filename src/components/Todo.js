@@ -1,6 +1,9 @@
 import React from 'react';
 import TodoList from './TodoList';
+import HTML5Backend from 'react-dnd-html5-backend'
+import { DragDropContext } from 'react-dnd';
 import '../styles/app.css';
+import update from 'immutability-helper';
  
 class Todo extends React.Component {
     constructor(props){
@@ -24,7 +27,8 @@ class Todo extends React.Component {
         if(this.state.title){
             let newList = {
                 title: this.state.title,
-                key: Date.now()
+                key: Date.now(),
+                index: this.state.lists.length
             };
             this.setState({
                 lists: [...this.state.lists, newList],
@@ -47,6 +51,27 @@ class Todo extends React.Component {
         this.setState({ lists: lists });
     }
 
+    moveList = (dragIndex, hoverIndex) => {
+        const { lists } = this.state
+        const dragList = lists[dragIndex]
+
+		this.setState(
+			update(this.state, {
+				lists: {
+					$splice: [[dragIndex, 1], [hoverIndex, 0, dragList]],
+				},
+			}),
+        );
+    }
+
+    resetIndex = () => {
+        var lists = this.state.lists;
+        lists.map((list, i) => {
+            list.index = i;
+        });
+        this.setState({ lists: lists });
+    }
+
     render(){
         return (
             <div className="container">
@@ -57,8 +82,8 @@ class Todo extends React.Component {
                 </div>
                 <div className="lists">
                     {this.state.lists.map(list => (
-                        <TodoList title={list.title} id={list.key} key={list.key} editList={(key, title) => this.editList(key, title)}
-                            deleteList={this.deleteList.bind(this, list.key)}/>
+                        <TodoList list={list} title={list.title} id={list.id} key={list.key} index={list.index} editList={(key, title) => this.editList(key, title)}
+                            deleteList={this.deleteList.bind(this, list.key)} moveList={this.moveList} resetIndex={this.resetIndex}/>
                     ))}
                 </div>
             </div>
@@ -66,4 +91,5 @@ class Todo extends React.Component {
     }
 }
 
-export default Todo;
+export default DragDropContext(HTML5Backend)(Todo)
+//export default Todo;

@@ -40,7 +40,6 @@
 
 .done {
     background-color: rgb(25, 25, 25);
-    text-decoration: line-through rgb(25, 25, 25);
     transition: all 1s;
 }
 

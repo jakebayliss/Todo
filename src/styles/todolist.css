@@ -41,6 +41,10 @@
     line-height: 26px;
 }
 
+.task-button:hover {
+    background-color: rgb(125, 170, 0);
+}
+
 .task-button:active { 
     background-color: white;
     color: yellowgreen;
