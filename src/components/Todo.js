@@ -4,16 +4,46 @@ import HTML5Backend from 'react-dnd-html5-backend'
 import { DragDropContext } from 'react-dnd';
 import '../styles/app.css';
 import update from 'immutability-helper';
+import { DB_CONFIG } from '../config/firebase';
+import firebase from 'firebase/app';
+import 'firebase/database';
  
 class Todo extends React.Component {
     constructor(props){
         super(props);
+
+        this.app = firebase.initializeApp(DB_CONFIG);
+        this.database = this.app.database().ref().child('lists');
 
         this.state = {
             title: '',
             lists: []
         };
     }
+
+    componentWillMount = () => {
+        const previousLists = this.state.lists;
+
+        this.database.on('child_added', snap => {
+            previousLists.push({
+                id: snap.key,
+                title: snap.val().title
+            });
+            this.setState({ lists: previousLists });
+        });
+
+        this.database.on('child_changed', snap => {
+            let index = previousLists.findIndex(list => list.id === snap.key);
+            previousLists[index].title = snap.val().title;
+            this.setState({ lists: previousLists });
+        })
+
+        this.database.on('child_removed', snap => {
+            let index = previousLists.findIndex(list => list.id === snap.key);
+            previousLists.splice(index, 1);
+            this.setState({ lists: previousLists });
+        });
+    };
 
     listOnChange = (e) => {
         if(e.key === 'Enter'){
@@ -24,31 +54,16 @@ class Todo extends React.Component {
     }
 
     createList = () => {
-        if(this.state.title){
-            let newList = {
-                title: this.state.title,
-                key: Date.now(),
-                index: this.state.lists.length
-            };
-            this.setState({
-                lists: [...this.state.lists, newList],
-                title: ''
-            });
-        }
+        this.database.push().set({ title: this.state.title });
+        this.setState({ title: '' });
     }
 
-    deleteList = (key) => {
-        let index = this.state.lists.findIndex(list => list.key === key);
-        let lists = this.state.lists;
-        lists.splice(index, 1);
-        this.setState({ lists: lists});
+    deleteList = (id) => {
+        this.database.child(id).remove();
     }
 
-    editList = (key, title) => {
-        let index = this.state.lists.findIndex(list => list.key === key);
-        let lists = this.state.lists;
-        lists[index].title = title;
-        this.setState({ lists: lists });
+    editList = (id, newTitle) => {
+        this.database.child(id).update({ title: newTitle });
     }
 
     moveList = (dragIndex, hoverIndex) => {
@@ -75,15 +90,15 @@ class Todo extends React.Component {
     render(){
         return (
             <div className="container">
-                <h1>Yeet.</h1>
+                <h1>Limitlist</h1>
                 <div className="create-list">
                     <input autoFocus type="text" className="list-text" placeholder="Create a new list" value={this.state.title} onChange={this.listOnChange} onKeyPress={this.listOnChange} />
                     <button className="list-button" onClick={this.createList}>Create</button>
                 </div>
                 <div className="lists">
                     {this.state.lists.map(list => (
-                        <TodoList list={list} title={list.title} id={list.id} key={list.key} index={list.index} editList={(key, title) => this.editList(key, title)}
-                            deleteList={this.deleteList.bind(this, list.key)} moveList={this.moveList} resetIndex={this.resetIndex}/>
+                        <TodoList list={list} title={list.title} id={list.id} key={list.id} index={list.index} editList={(id, title) => this.editList(id, title)}
+                            deleteList={this.deleteList.bind(this, list.id)} moveList={this.moveList} resetIndex={this.resetIndex}/>
                     ))}
                 </div>
             </div>
@@ -91,5 +106,4 @@ class Todo extends React.Component {
     }
 }
 
-export default DragDropContext(HTML5Backend)(Todo)
-//export default Todo;
+export default DragDropContext(HTML5Backend)(Todo);
