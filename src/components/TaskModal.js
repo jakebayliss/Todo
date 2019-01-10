@@ -5,13 +5,12 @@ class TaskModal extends React.Component {
         super (props);
 
         this.state = {
-            title: '',
-            notes: ''
+            text: props.text,
+            notes: props.notes
         };
     }
 
     componentDidMount = () => {
-        this.setState({ title: this.props.title, notes: this.props.notes });
         document.getElementById('title-edit').focus();
         document.body.addEventListener('keydown', (e) => {
             this.handleEnterEsc(e);
@@ -19,15 +18,15 @@ class TaskModal extends React.Component {
     }
 
     save = () => {
-        if(this.state.title) {
-            this.props.save(this.state.title);
+        if(this.state.text) {
+            this.props.save(this.state.text, this.state.notes);
         }
     }
 
     handleEnterEsc = (e) => {
         if(e.key === 'Enter' && (document.activeElement != document.getElementById('notes'))) {
-            if(this.state.title) {
-                this.props.save(this.state.title, this.state.notes);
+            if(this.state.text) {
+                this.props.save(this.state.text, this.state.notes);
             }
         }
         else if(e.key === 'Escape') {
@@ -36,7 +35,7 @@ class TaskModal extends React.Component {
     }
 
     handleTaskChange = (e) => {
-        this.setState({ title: e.target.value });
+        this.setState({ text: e.target.value });
     }
 
     handleNotesChange = (e) => {
@@ -49,9 +48,9 @@ class TaskModal extends React.Component {
 
         return (
             <div id="overlay" className="modal-overlay" style={style}>
-                <div id={this.props.title + " modal"} className="modal" style={style} onKeyDown={this.handleEnterEsc}>
+                <div id={this.props.text + " modal"} className="modal" style={style} onKeyDown={this.handleEnterEsc}>
                     <div className="modal-content">
-                        <input id="title-edit" className="modal-title" type="text" value={this.state.title} onChange={this.handleTaskChange} onKeyDown={this.handleEnterEsc} />
+                        <input id="title-edit" className="modal-title" type="text" value={this.state.text} onChange={this.handleTaskChange} onKeyDown={this.handleEnterEsc} />
                         <label className="notes-label">Notes</label>
                         <textarea id="notes" className="modal-notes" onChange={this.handleNotesChange} value={this.state.notes}></textarea>
                     </div>

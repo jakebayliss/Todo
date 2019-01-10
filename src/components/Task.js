@@ -25,7 +25,7 @@ const taskTarget = {
 			return null
 		}
         const dragIndex = monitor.getItem().index;
-		const hoverIndex = props.index;
+		const hoverIndex = props.task.index;
 
 		// Don't replace items with themselves
 		if (dragIndex === hoverIndex) {
@@ -69,30 +69,21 @@ class Task extends React.Component {
         super(props);
 
         this.state = {
-            done: false,
-            title: '',
+            task: props.task,
             previousValue: '',
-            modalIsOpen: false,
-            notes: ''
+            modalIsOpen: false
         };
     }
 
-    componentDidMount = () => {
-        this.setState({ title: this.props.task.text, editing: false });
-    }
-
-    completeTask = () => {
-        if(this.state.done) {
-            this.props.completeTask(this.props.task.key, true);
-            this.setState({ done: false });
-            return;
-        }
-        this.props.completeTask(this.props.task.key, false);
-        this.setState({ done: true });
+    toggleCompleted = () => {
+        let task = this.state.task;
+        this.props.toggleCompleted(this.state.task.id, this.state.task.done ? false : true);
+        task.done = this.state.task.done ? false : true;
+        this.setState({ task: task });
     }
 
     deleteTask = () => {
-        this.props.delete(this.props.task.key);
+        this.props.delete(this.state.task.id);
         this.setState({ modalIsOpen: false });
     }
 
@@ -100,8 +91,12 @@ class Task extends React.Component {
         this.setState({ modalIsOpen: true });
     }
 
-    saveChanges = (newTitle, notes) => {
-        this.setState({ modalIsOpen: false, title: newTitle, notes: notes });
+    saveChanges = (newText, notes) => {
+        let task = this.state.task;
+        task.text = newText;
+        task.notes = notes;
+        this.props.editTask(task);
+        this.setState({ modalIsOpen: false, task: task });
     }
 
     cancel = () => {
@@ -119,16 +114,16 @@ class Task extends React.Component {
             connectDragSource(
                 connectDropTarget(
                     <div className="task-container">
-                        <li className={this.state.done ? "task done" : "task"} style={{opacity}} onDoubleClick={this.openModal}>
+                        <li className={this.state.task.done ? "task done" : "task"} style={{opacity}} onDoubleClick={this.openModal}>
                             <div className="task-inner">
-                                <input className="task-checkbox" checked={this.state.done} type="checkbox" onChange={this.completeTask} />
-                                {this.state.title}
+                                <input className="task-checkbox" checked={this.state.task.done} type="checkbox" onChange={this.toggleCompleted} />
+                                {this.state.task.text}
                             </div>
-                            <button className="edit-task-button" onClick={this.openModal} hidden={this.state.done}>&#9998;</button>
-                            <button className="delete-task-button" hidden={!this.state.done} onClick={this.deleteTask}>&times;</button>
+                            <button className="edit-task-button" onClick={this.openModal} hidden={this.state.task.done}>&#9998;</button>
+                            <button className="delete-task-button" hidden={!this.state.task.done} onClick={this.deleteTask}>&times;</button>
                         </li>
                         {this.state.modalIsOpen && (
-                            <TaskModal task={this.props.task} title={this.state.title} notes={this.state.notes} delete={this.deleteTask} isOpen={this.state.modalIsOpen} save={this.saveChanges}
+                            <TaskModal text={this.state.task.text} notes={this.state.task.notes} delete={this.deleteTask} isOpen={this.state.modalIsOpen} save={this.saveChanges}
                                 cancel={this.cancel} />
                         )}
                     </div>

@@ -1,11 +1,12 @@
 import React from 'react';
 import Task from './Task';
-import HTML5Backend from 'react-dnd-html5-backend'
-import { findDOMNode } from 'react-dom'
-import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
+import { findDOMNode } from 'react-dom';
+import { DragSource, DropTarget } from 'react-dnd';
 import flow from 'lodash.flow';
 import '../styles/todolist.css';
 import update from 'immutability-helper';
+import firebase from 'firebase/app';
+import 'firebase/database';
 
 const listSource = {
     beginDrag(props) {
@@ -13,6 +14,7 @@ const listSource = {
             props.list
         );
     },
+    // TODO: Sort this out
     endDrag(props, monitor, component) {
         if(!monitor.didDrop()){
             return;
@@ -20,6 +22,7 @@ const listSource = {
     }
 }
 
+// TODO: Customise this method. (DOESNT HANDLE DRAGGING SIDE WAYS!!)
 const listTarget = {
 	hover(props, monitor, component) {
 		if (!component) {
@@ -68,6 +71,8 @@ const listTarget = {
 class TodoList extends React.Component {
     constructor(props){
         super(props);
+        
+        this.database = firebase.database().ref().child(`users/${props.uid}/lists/${this.props.list.id}`);
 
         this.state = {
             text: '',
@@ -79,9 +84,50 @@ class TodoList extends React.Component {
         }
     }
 
+    componentWillMount = () => {
+        const previousTasks = this.state.tasks;
+        
+        this.database.orderByChild('index').on('child_added', snap => {
+            if(snap.val().text) {
+                previousTasks.push({
+                    id: snap.key,
+                    text: snap.val().text,
+                    notes: snap.val().notes,
+                    done: snap.val().done,
+                    index: snap.val().index
+                });
+                this.setState({ tasks: previousTasks });
+            }
+        });
+
+        this.database.orderByChild('index').on('child_changed', snap => {
+            const index = previousTasks.findIndex(task => task.id === snap.key);
+            if(snap.val().text) {
+                previousTasks[index].text = snap.val().text;
+                previousTasks[index].notes = snap.val().notes;
+            }
+            else if (snap.val().done) {
+                previousTasks[index].done = snap.val().done;
+            }
+            else if (snap.val().index) {
+                previousTasks[index].index = snap.val().index;
+            }
+            this.setState({ tasks: previousTasks });
+        });
+
+        this.database.on('child_removed', snap => {
+            const index = previousTasks.findIndex(task => task.id === snap.key);
+            if(index) {
+                this.updateTaskCounter(previousTasks[index].done, true);
+                previousTasks.splice(index, 1);
+            }
+            this.setState({ tasks: previousTasks });
+        });
+    }
+
     componentDidMount = () => {
         document.getElementById(this.props.title + "-text").focus();
-        this.setState({ title: this.props.title, previousValue: this.props.title })
+        this.setState({ title: this.props.title, previousValue: this.props.title });
     }
 
     taskOnChange = (e) => {
@@ -93,17 +139,9 @@ class TodoList extends React.Component {
     }
 
     addTask = () => {
-        if(this.state.text){
-            let newTask = {
-                text: this.state.text,
-                key: Date.now(),
-                done: false,
-                index: this.state.tasks.length
-            };
-            this.setState({
-                tasks: [...this.state.tasks, newTask],
-                text: ''
-            });
+        if(this.state.text) {
+            this.database.push().set({ text: this.state.text, notes: '', done: false, index: this.state.tasks.length });
+            this.setState({ text: '' });
         }
     }
 
@@ -125,64 +163,45 @@ class TodoList extends React.Component {
         this.setState({ title: e.target.value });
     }
 
-    deleteTask = (key) => {
-        let index = this.state.tasks.findIndex(task => task.key === key);
-        let tasks = this.state.tasks;
-
-        if(tasks[index]){
-            if(!tasks[index].done){
-                this.updateTaskCounter(null);
-            }
-            else {
-                this.updateTaskCounter(true);
-            }
-        }
-
-        tasks.splice(index, 1);
-        this.setState({ tasks: tasks });
-
-        if(this.state.tasks.length == 0) {
-            this.setState({ completedTasks: 0 });
-        }
+    deleteTask = (id) => {
+        this.database.child(id).remove();
     }
 
-    editTask = (key, title) => {
-        let index = this.state.tasks.findIndex(task => task.key === key);
-        let tasks = this.state.tasks;
-        tasks[index].title = title;
-        this.setState({ tasks: tasks });
+    editTask = (task) => {
+        this.database.child(task.id).update({ text: task.text, notes: task.notes });
     }
 
-    completeTask = (key, value) => {
-        let index = this.state.tasks.findIndex(task => task.key === key);
-        let tasks = this.state.tasks;
-
-        this.updateTaskCounter(value);
-
-        tasks[index].done = true;
-        this.setState({ tasks: tasks });
+    toggleCompleted = (id, value) => {
+        this.database.child(id).update({ done: value });
+        this.updateTaskCounter(value, false);
     }
 
-    updateTaskCounter = (done) => {
-        if(done == false) {
-            this.setState({ completedTasks: this.state.completedTasks + 1 });
+    updateTaskCounter = (done, deleted) => {
+        if(!done && deleted) {
             return;
         }
-        if(done && this.state.completedTasks > 0) {
+        if(done) {
+            if(deleted) {
+                this.setState({ completedTasks: this.state.completedTasks - 1 });
+                return;
+            }
+            this.setState({ completedTasks: this.state.completedTasks + 1 });
+        }
+        else {
             this.setState({ completedTasks: this.state.completedTasks - 1 });
         }
     }
 
     moveTask = (dragIndex, hoverIndex) => {
-        const { tasks } = this.state
-        const dragTask = tasks[dragIndex]
+        const { tasks } = this.state;
+        const dragTask = tasks[dragIndex];
 
 		this.setState(
 			update(this.state, {
 				tasks: {
 					$splice: [[dragIndex, 1], [hoverIndex, 0, dragTask]],
-				},
-			}),
+				}
+			})
         );
     }
     
@@ -190,7 +209,9 @@ class TodoList extends React.Component {
         var tasks = this.state.tasks;
         tasks.map((task, i) => {
             task.index = i;
+            this.database.child(task.id).update({ index: i });
         });
+
         this.setState({ tasks: tasks });
     }
 
@@ -230,8 +251,8 @@ class TodoList extends React.Component {
                         </div>
                         <ul className ="tasks">
                             {this.state.tasks.map(task => (
-                                <Task task={task} key={task.key} index={task.index} moveTask={this.moveTask} editTask={(key, title) => this.editTask(key, title)} completeTask={(key, value) => this.completeTask(key, value)}
-                                    delete={(key) => this.deleteTask(key)} 
+                                <Task task={task} done={task.done} key={task.id} moveTask={this.moveTask} editTask={(task) => this.editTask(task)} toggleCompleted={(id, value) => this.toggleCompleted(id, value)}
+                                    delete={(id) => this.deleteTask(id)} 
                                     resetIndex={this.resetIndex}/>
                             ))}
                         </ul>
@@ -252,4 +273,3 @@ export default flow(
         connectDropTarget: connect.dropTarget(),
     })))
     (TodoList);
-//export default DragDropContext(HTML5Backend)(TodoList)

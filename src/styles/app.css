@@ -1,3 +1,58 @@
+.login-page-container {
+    width: 70%;
+    height: 78px;
+    display: flex;
+    margin: auto;
+}
+
+.login-button, .signup-button {
+    background-color: #404040;
+    width: 50%;
+    text-decoration: none;
+    color: white;
+    vertical-align: middle;
+    padding-top: 4%;
+    font-size: 25px;
+    font-family: 'Muli', sans-serif;
+}
+
+.login-button {
+    margin-left: auto;
+    margin-right: 2px;
+}
+
+.login-button:hover, .signup-button:hover {
+    background-color: rgb(20, 20, 20);
+}
+
+.signup-button {
+    margin-right: auto;
+    margin-left: 2px;
+}
+
+.form-container {
+    margin: auto;
+    margin-top: 10%;
+    width: 400px;
+}
+
+.form-container input {
+    width: 100%;
+    text-align: center;
+    background-color: transparent;
+    margin-bottom: 20px;
+}
+
+.submit {
+    padding: 3px 18px;
+    background-color: yellowgreen;
+}
+
+.signup-container {
+    margin: auto;
+    width: 400px;
+}
+
 .container {
     display: flex;
     justify-content: center;
@@ -14,6 +69,7 @@
 .list-text {
     background-color: rgb(25, 25, 25);
     margin-right: 20px;
+    width: 270px;
 }
 
 .list-button {
@@ -33,6 +89,26 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin: 0 20px;
-    
+    margin: 0 20px;   
+}
+
+.logout-container {
+    position: absolute;
+    top: 8px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.logout-container p {
+    text-align: right;
+    margin: 3px 0;
+}
+
+.greeting {
+    font-family: 'Reem Kufi', sans-serif;
+    letter-spacing: 1px;
+    font-size: 23px;
+    margin: 11px 0 24px 0;
 }

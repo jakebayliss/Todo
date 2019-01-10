@@ -1,5 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Todo from './components/Todo';
+import App from './app';
 
-ReactDOM.render(<Todo />, document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById('app'));

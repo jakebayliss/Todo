@@ -1,4 +1,6 @@
-export const DB_CONFIG = {
+import firebase from 'firebase/app';
+
+const DB_CONFIG = {
     apiKey: "AIzaSyAx-EGlbALd2SKBz5UyGkfjYxsbDfMIOc0",
     authDomain: "limitlist-6ac62.firebaseapp.com",
     databaseURL: "https://limitlist-6ac62.firebaseio.com",
@@ -6,3 +8,6 @@ export const DB_CONFIG = {
     storageBucket: "limitlist-6ac62.appspot.com",
     messagingSenderId: "781553856532"
 };
+
+const fire = firebase.initializeApp(DB_CONFIG);
+export default fire;

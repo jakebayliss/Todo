@@ -48,9 +48,10 @@
     background-color: white;
     transition: background-color 1s;
     border-radius: 50%;
-    width: 14px;
+    min-width: 14px;
     height: 14px;
     margin-right: 8px;
+    margin-top: 5px;
 }
 
 .task-checkbox:focus {
@@ -78,6 +79,7 @@
     color: white;
     font-size: 22px;
     line-height: 16px;
+    height: 25px;
 }
 
 .edit-task-button:hover {
