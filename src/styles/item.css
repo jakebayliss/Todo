@@ -1,11 +1,11 @@
-.task-container {
+.item-container {
     display: flex;
     justify-content: center;
     background-color: transparent;
     margin-bottom: 5px;
 }
 
-.task {
+.item {
     width: 100%;
     padding: 5px 3px;
     background-color: rgb(100, 100, 100);
@@ -16,25 +16,26 @@
     transition: background-color .5s;
 }
 
-.task:hover {
+.item:hover {
     background-color: rgb(150, 150, 150);
     transition: background-color 0s;
 }
 
-.task.done:hover {
+.item.done:hover {
     background-color: rgb(25, 25, 25);
 }
 
-.task-inner {
+.item-inner {
     display: flex;
+    padding-bottom: 1px;
 }
 
-.task-title:focus {
+.item-title:focus {
     outline: none;
     border-bottom: yellowgreen 1px solid;
 }
 
-.task-text {
+.item-text {
     margin-right: 20px;
 }
 
@@ -43,7 +44,7 @@
     transition: all 1s;
 }
 
-.task-checkbox {
+.item-checkbox {
     -webkit-appearance: none;
     background-color: white;
     transition: background-color 1s;
@@ -51,30 +52,30 @@
     min-width: 14px;
     height: 14px;
     margin-right: 8px;
-    margin-top: 5px;
+    margin-top: 3px;
 }
 
-.task-checkbox:focus {
+.item-checkbox:focus {
     outline: none;
 }
 
-.task-checkbox:checked {
+.item-checkbox:checked {
     background-color: yellowgreen;
     transition: background-color 1s;
 }
 
-.delete-task-button {
+.delete-item-button {
     background-color: transparent;
     font-size: 26px;
     line-height: 10px;
     color: white;
 }
 
-.delete-task-button:hover {
+.delete-item-button:hover {
     opacity: .4;
 }
 
-.edit-task-button { 
+.edit-item-button { 
     background-color: transparent;
     color: white;
     font-size: 22px;
@@ -82,6 +83,6 @@
     height: 25px;
 }
 
-.edit-task-button:hover {
+.edit-item-button:hover {
     color: rgb(50, 50, 50);
 }

@@ -15,7 +15,7 @@
     letter-spacing: 2px;
     width: 100%;
     text-align: center;
-    margin: 20px 0;
+    margin: 12px 0;
 }
 
 .list-title.edit {
@@ -30,27 +30,29 @@
     border-bottom: yellowgreen 1px solid;
 }
 
-.task-text {
+.item-text {
     background-color: rgb(50, 50, 50);
+    width: 246px;
 }
 
-.task-button {
+.item-button {
     background-color: yellowgreen;
-    border-radius: 50%;
-    font-size: 25px;
+    border-radius: 22%;
+    font-size: 26px;
     line-height: 26px;
+    padding-bottom: 1px;
 }
 
-.task-button:hover {
+.item-button:hover {
     background-color: rgb(125, 170, 0);
 }
 
-.task-button:active { 
+.item-button:active { 
     background-color: white;
     color: yellowgreen;
 }
 
-.tasks {
+.items {
     list-style: none;
     text-align: left;
     padding-left: 0;

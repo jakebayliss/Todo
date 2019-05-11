@@ -14,7 +14,6 @@ class App extends React.Component {
 
         this.state = {
             user: {},
-            name: '',
             activeElement: null,
             clicked: false,
             ActiveElement: {
@@ -27,6 +26,7 @@ class App extends React.Component {
     componentDidMount = () => {
         firebase.auth().onAuthStateChanged((user) => {
             if(user) {
+                localStorage.setItem('user', JSON.stringify(user));
                 this.setState({ user: user });
             } else {
                 this.setState({ user: null });
@@ -35,35 +35,37 @@ class App extends React.Component {
     }
 
     login = () => {
-        /*if(this.state.activeElement === ActiveElement.Login) {
+        if(this.state.activeElement === ActiveElement.Login) {
             this.state.activeElement = null;
             document.getElementById('login-button').style.backgroundColor = '#404040';
         } 
         this.activeElement = ActiveElement.Login;
         document.getElementById('signup-button').style.backgroundColor = '#404040';
-        document.getElementById('login-button').style.backgroundColor = 'rgb(20, 20, 20)';*/
+        document.getElementById('login-button').style.backgroundColor = 'rgb(20, 20, 20)';
         return <Login />;
     }
 
     signup = () => {
-        /*if(this.state.activeElement === ActiveElement.Signup) {
+        if(this.state.activeElement === ActiveElement.Signup) {
             this.state.activeElement = null;
             document.getElementById('signup-button').style.backgroundColor = '#404040';
         } 
         document.getElementById('login-button').style.backgroundColor = '#404040';
-        document.getElementById('signup-button').style.backgroundColor = 'rgb(20, 20, 20)';*/
+        document.getElementById('signup-button').style.backgroundColor = 'rgb(20, 20, 20)';
         return <Signup />;
     }
 
     logout = () => {
         firebase.auth().signOut();
+        localStorage.setItem('user', null);
+        this.setState({ user: null });
     }
 
     render(){
         return (
             <div className="container">
                 <div>
-                    <h1>Mindbook</h1>
+                    <h1><span id="mindex-cap">M</span>index</h1>
                 </div>
                 {this.state.user && (
                     <div className="logout-container">
@@ -71,7 +73,9 @@ class App extends React.Component {
                         <p onClick={this.logout}>Logout</p>
                     </div>
                 )}
-                <p className="greeting">Hey { this.state.user.displayName }</p>
+                {this.state.user && (
+                    <p className="greeting">Hey { this.state.user.displayName }</p>
+                )}
                 {this.state.user ? 
                     <Todo user={this.state.user} uid={this.state.user.uid} /> : 
                     <Router>

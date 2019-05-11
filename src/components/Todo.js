@@ -1,56 +1,66 @@
 import React from 'react';
-import TodoList from './TodoList';
+import List from './List';
 import HTML5Backend from 'react-dnd-html5-backend'
 import { DragDropContext } from 'react-dnd';
 import '../styles/app.css';
 import update from 'immutability-helper';
 import firebase from '../config/firebase';
-import 'firebase/database';
- 
+import "firebase/auth";
+import 'firebase/firestore';
+
 class Todo extends React.Component {
     constructor(props){
         super(props);
+        this.unsubscribe = null;
 
         this.state = {
-            user: props.user,
-            uid: props.uid,
+            user: JSON.parse(localStorage.getItem('user')),
             title: '',
-            lists: []
+            lists: [],
+            loading: true
         };
-
-        this.database = firebase.database().ref().child(`users/${this.state.uid}/lists`);
+        
+        this.db = firebase.firestore();
+        this.db.settings({
+            timestampsInSnapshots: true
+        });
+        this.ref = this.db.collection('lists');
     }
     
-    componentWillMount = () => {
+    componentDidMount = () => {
         if(this.state.user) {
-            const previousLists = this.state.lists;
-
-            this.database.on('child_added', snap => {
-                previousLists.push({
-                    id: snap.key,
-                    title: snap.val().title
-                });
-                this.setState({ lists: previousLists, title: '' });
-            });
-
-            this.database.on('child_changed', snap => {
-                const index = previousLists.findIndex(list => list.id === snap.key);
-                previousLists[index].title = snap.val().title;
-                this.setState({ lists: previousLists });
-            })
-
-            this.database.on('child_removed', snap => {
-                const index = previousLists.findIndex(list => list.id === snap.key);
-                previousLists.splice(index, 1);
-                this.setState({ lists: previousLists });
-            });
+            this.unsubscribe = this.onCollectionUpdate;
         }
-    };
-
-    populate = () => {
-        
     }
 
+    componentWillUnmount = () => {
+        this.unsubscribe();
+    }
+
+    onCollectionUpdate = () => {
+        let self = this;
+        const lists = [];
+
+        this.ref.where('uid', '==', self.state.user.uid).get()
+            .then(function(querySnapshot) {
+                querySnapshot.forEach((doc) => {
+                    lists.push({
+                        id: doc.id,
+                        uid: self.state.user.uid,
+                        title: doc.data().title,
+                        added: doc.data().added
+                    });
+                });
+            })
+            .then(function() {
+                self.setState({
+                    lists: lists,
+                    loading: false,
+                });
+            })
+            .catch(error => console.log(error));
+    }
+        
     listOnChange = (e) => {
         if(e.key === 'Enter'){
             this.createList();
@@ -60,15 +70,35 @@ class Todo extends React.Component {
     }
 
     createList = () => {
-        this.database.push().set({ title: this.state.title });
+        let list = {
+            uid: this.state.user.uid,
+            title: this.state.title,
+            added: Date.now()
+        }
+        let self = this;
+
+        this.ref.add(list)
+            .then(function() {
+                list.id = self.ref.doc().id;
+                const prevLists = self.state.lists;
+                prevLists.push(list);
+                self.setState({ lists: prevLists, title: '' });
+            })
+            .catch(error => console.log(error));
     }
 
     deleteList = (id) => {
-        this.database.child(id).remove();
+        let prevLists = this.state.lists;
+        this.ref.doc(id).delete();
+        const index = prevLists.findIndex(list => list.id === id);
+        if(index) {
+            prevLists.splice(index, 1);
+        }
+        this.setState({ lists: prevLists });
     }
 
     editList = (id, newTitle) => {
-        this.database.child(id).update({ title: newTitle });
+        //this.database.child(id).update({ title: newTitle });
     }
 
     moveList = (dragIndex, hoverIndex) => {
@@ -101,7 +131,7 @@ class Todo extends React.Component {
                 </div>
                 <div className="lists">
                     {this.state.lists.map(list => (
-                        <TodoList list={list} title={list.title} id={list.id} key={list.id} index={list.index} editList={(id, title) => this.editList(id, title)}
+                        <List list={list} title={list.title} id={list.id} key={list.id} index={list.index} editList={(id, title) => this.editList(id, title)}
                             deleteList={this.deleteList.bind(this, list.id)} moveList={this.moveList} resetIndex={this.resetIndex} uid={this.state.uid}/>
                     ))}
                 </div>

@@ -12,10 +12,11 @@ class Login extends React.Component {
     }
 
     login = () => {
-        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.email)
+        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+            .then(user => localStorage.setItem('user', JSON.stringify(user.user)))
             .catch(function(error) {
                 var errorCode = error.code;
-                var errorMessage = error.message;
+                console.log(error.message);
             });
     }
 

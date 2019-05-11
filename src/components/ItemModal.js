@@ -1,6 +1,6 @@
 import React from 'react';
 
-class TaskModal extends React.Component {
+class ItemModal extends React.Component {
     constructor(props) {
         super (props);
 
@@ -34,7 +34,7 @@ class TaskModal extends React.Component {
         }
     }
 
-    handleTaskChange = (e) => {
+    handleItemChange = (e) => {
         this.setState({ text: e.target.value });
     }
 
@@ -50,7 +50,7 @@ class TaskModal extends React.Component {
             <div id="overlay" className="modal-overlay" style={style}>
                 <div id={this.props.text + " modal"} className="modal" style={style} onKeyDown={this.handleEnterEsc}>
                     <div className="modal-content">
-                        <input id="title-edit" className="modal-title" type="text" value={this.state.text} onChange={this.handleTaskChange} onKeyDown={this.handleEnterEsc} />
+                        <input id="title-edit" className="modal-title" type="text" value={this.state.text} onChange={this.handleItemChange} onKeyDown={this.handleEnterEsc} />
                         <label className="notes-label">Notes</label>
                         <textarea id="notes" className="modal-notes" onChange={this.handleNotesChange} value={this.state.notes}></textarea>
                     </div>
@@ -65,4 +65,4 @@ class TaskModal extends React.Component {
     }
 }
 
-export default TaskModal;
+export default ItemModal;

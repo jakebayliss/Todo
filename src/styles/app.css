@@ -1,3 +1,7 @@
+#mindex-cap{
+    color: yellowgreen;
+}
+
 .login-page-container {
     width: 70%;
     height: 78px;
@@ -102,8 +106,14 @@
 }
 
 .logout-container p {
-    text-align: right;
+    cursor: pointer;
+    font-family: 'Reem Kufi', sans-serif;
     margin: 3px 0;
+    text-align: right;
+}
+
+.logout-container p:hover {
+    color: grey;
 }
 
 .greeting {

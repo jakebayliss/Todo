@@ -2,11 +2,11 @@ import React from 'react';
 import { findDOMNode } from 'react-dom'
 import { DragSource, DropTarget } from 'react-dnd';
 import flow from 'lodash.flow';
-import TaskModal from './TaskModal';
-import '../styles/task.css';
+import ItemModal from './ItemModal';
+import '../styles/item.css';
 import '../styles/modal.css';
 
-const taskSource = {
+const itemSource = {
     beginDrag(props) {
         return (
             props.task
@@ -19,13 +19,13 @@ const taskSource = {
     }
 }
 
-const taskTarget = {
+const itemTarget = {
 	hover(props, monitor, component) {
 		if (!component) {
 			return null
 		}
         const dragIndex = monitor.getItem().index;
-		const hoverIndex = props.task.index;
+		const hoverIndex = props.item.index;
 
 		// Don't replace items with themselves
 		if (dragIndex === hoverIndex) {
@@ -59,44 +59,60 @@ const taskTarget = {
 			return;
         }
 
-        props.moveTask(dragIndex, hoverIndex);
+        props.moveitem(dragIndex, hoverIndex);
         props.resetIndex();
 	}
 }
 
-class Task extends React.Component {
+class Item extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            task: props.task,
+            item: props.item,
             previousValue: '',
             modalIsOpen: false
         };
+
+        console.log(props.item);
     }
 
+    handleClick = (e) => {
+        if(e.target.tagName === 'INPUT') {
+            this.toggleCompleted();
+            return;
+        }
+        this.openModal();
+    }
+    
     toggleCompleted = () => {
-        let task = this.state.task;
-        this.props.toggleCompleted(this.state.task.id, this.state.task.done ? false : true);
-        task.done = this.state.task.done ? false : true;
-        this.setState({ task: task });
+        console.log('done');
+        let item = this.state.item;
+        this.props.toggleCompleted(this.state.item.id, this.state.item.done ? false : true);
+        item.done = this.state.item.done ? false : true;
+        this.setState({ item: item });
     }
-
-    deleteTask = () => {
-        this.props.delete(this.state.task.id);
+    
+    deleteItem = () => {
+        this.props.delete(this.state.item.id);
         this.setState({ modalIsOpen: false });
     }
-
-    openModal = () => {
+    
+    openModal = (e) => {
+        console.log('modal');
         this.setState({ modalIsOpen: true });
     }
 
+    placeholder = () => {
+        return;
+    }
+
     saveChanges = (newText, notes) => {
-        let task = this.state.task;
-        task.text = newText;
-        task.notes = notes;
-        this.props.editTask(task);
-        this.setState({ modalIsOpen: false, task: task });
+        let item = this.state.item;
+        item.text = newText;
+        item.notes = notes;
+        this.props.editItem(item);
+        this.setState({ modalIsOpen: false, item: item });
     }
 
     cancel = () => {
@@ -113,17 +129,15 @@ class Task extends React.Component {
             connectDropTarget &&
             connectDragSource(
                 connectDropTarget(
-                    <div className="task-container">
-                        <li className={this.state.task.done ? "task done" : "task"} style={{opacity}} onDoubleClick={this.openModal}>
-                            <div className="task-inner">
-                                <input className="task-checkbox" checked={this.state.task.done} type="checkbox" onChange={this.toggleCompleted} />
-                                {this.state.task.text}
+                    <div className="item-container">
+                        <li className={this.state.item.done ? "item done" : "item"} style={{opacity}} onClick={this.handleClick} >
+                            <div className="item-inner">
+                                <input className="item-checkbox" checked={this.state.item.done} type="checkbox" onChange={this.placeholder}/>
+                                {this.state.item.text}
                             </div>
-                            <button className="edit-task-button" onClick={this.openModal} hidden={this.state.task.done}>&#9998;</button>
-                            <button className="delete-task-button" hidden={!this.state.task.done} onClick={this.deleteTask}>&times;</button>
                         </li>
                         {this.state.modalIsOpen && (
-                            <TaskModal text={this.state.task.text} notes={this.state.task.notes} delete={this.deleteTask} isOpen={this.state.modalIsOpen} save={this.saveChanges}
+                            <ItemModal text={this.state.item.text} notes={this.state.item.notes} delete={this.deleteItem} isOpen={this.state.modalIsOpen} save={this.saveChanges}
                                 cancel={this.cancel} />
                         )}
                     </div>
@@ -134,13 +148,13 @@ class Task extends React.Component {
 }
 
 export default flow(
-    DragSource('task',
-	    taskSource,
+    DragSource('item',
+	    itemSource,
 	    (connect, monitor) => ({
 		    connectDragSource: connect.dragSource(),
 		    isDragging: monitor.isDragging(),
         }),),
-     DropTarget('task', taskTarget, (connect) => ({
+     DropTarget('item', itemTarget, (connect) => ({
         connectDropTarget: connect.dropTarget(),
     })))
-    (Task);
+    (Item);
