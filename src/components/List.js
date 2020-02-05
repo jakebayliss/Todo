@@ -72,8 +72,6 @@ const listTarget = {
 class List extends React.Component {
     constructor(props){
         super(props);
-        this.unsubscribe = null;
-        //this.database = firebase.database().ref().child(`users/${props.uid}/lists/${this.props.list.id}`);
 
         this.state = {
             text: '',
@@ -84,64 +82,14 @@ class List extends React.Component {
             completedItems: 0
         }
 
-        console.log(this.props.title, this.props.id);
-
         this.db = firebase.firestore();
         this.ref = this.db.collection('items');
     }
 
-    /*componentWillMount = () => {
-        const previousItems = this.state.items;
-        
-        this.database.orderByChild('index').on('child_added', snap => {
-            if(snap.val().text) {
-                previousItems.push({
-                    id: snap.key,
-                    text: snap.val().text,
-                    notes: snap.val().notes,
-                    done: snap.val().done,
-                    index: snap.val().index,
-                    added: snap.val().added,
-                    updated: null
-                });
-                this.setState({ items: previousItems });
-            }
-        });
-
-        this.database.orderByChild('index').on('child_changed', snap => {
-            const index = previousItems.findIndex(item => item.id === snap.key);
-            if(snap.val().text) {
-                previousItems[index].text = snap.val().text;
-                previousItems[index].notes = snap.val().notes;
-                previousItems[index].updated = snap.val().updated;
-            }
-            else if (snap.val().done) {
-                previousItems[index].done = snap.val().done;
-            }
-            else if (snap.val().index) {
-                previousItems[index].index = snap.val().index;
-            }
-            this.setState({ items: previousItems });
-        });
-
-        this.database.on('child_removed', snap => {
-            const index = previousItems.findIndex(item => item.id === snap.key);
-            if(index) {
-                this.updateItemCounter(previousItems[index].done, true);
-                previousItems.splice(index, 1);
-            }
-            this.setState({ items: previousItems });
-        });
-    }*/
-
     componentDidMount = () => {
-        this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
+        this.ref.onSnapshot(this.onCollectionUpdate);
         document.getElementById(this.props.title + "-text").focus();
         this.setState({ title: this.props.title, previousValue: this.props.title });
-    }
-
-    componentWillUnmount = () => {
-        this.unsubscribe();
     }
 
     onCollectionUpdate = () => {
@@ -171,7 +119,7 @@ class List extends React.Component {
 
     itemOnChange = (e) => {
         if(e.key === 'Enter'){
-            this.additem();
+            this.addItem();
             return;
         }
         this.setState({ text: e.target.value });
@@ -189,12 +137,13 @@ class List extends React.Component {
                 added: Date.now(),
                 updated: null
             };
-
+            
+            let self = this;
             this.ref.add(item)
                 .then(function() {
-                    const prevItems = this.state.items;
+                    const prevItems = self.state.items;
                     prevItems.push(item);
-                    this.setState({ text: '' });
+                    self.setState({ text: '' });
                 });
         }
     }
@@ -218,7 +167,13 @@ class List extends React.Component {
     }
 
     deleteItem = (id) => {
-        this.database.child(id).remove();
+        let prevItems = this.state.items;
+        this.ref.doc(id).delete();
+        const index = prevItems.findIndex(item => item.id === id);
+        if(index) {
+            prevItems.splice(index, 1);
+        }
+        this.setState({ items: prevItems });
     }
 
     editItem = (item) => {
@@ -305,7 +260,7 @@ class List extends React.Component {
                         </div>
                         <ul className ="items">
                             {this.state.items.map(item => (
-                                <Item item={item} done={item.done} key={item.id} moveItem={this.moveItem} editItem={(item) => this.editItem(item)} toggleCompleted={(id, value) => this.toggleCompleted(id, value)}
+                                <Item item={item} done={item.done} key={item.index} moveItem={this.moveItem} editItem={(item) => this.editItem(item)} toggleCompleted={(id, value) => this.toggleCompleted(id, value)}
                                     delete={(id) => this.deleteItem(id)} 
                                     resetIndex={this.resetIndex}/>
                             ))}

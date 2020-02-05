@@ -86,7 +86,6 @@ class Item extends React.Component {
     }
     
     toggleCompleted = () => {
-        console.log('done');
         let item = this.state.item;
         this.props.toggleCompleted(this.state.item.id, this.state.item.done ? false : true);
         item.done = this.state.item.done ? false : true;
@@ -99,7 +98,6 @@ class Item extends React.Component {
     }
     
     openModal = (e) => {
-        console.log('modal');
         this.setState({ modalIsOpen: true });
     }
 

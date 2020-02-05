@@ -11,7 +11,6 @@ import 'firebase/firestore';
 class Todo extends React.Component {
     constructor(props){
         super(props);
-        this.unsubscribe = null;
 
         this.state = {
             user: JSON.parse(localStorage.getItem('user')),
@@ -29,12 +28,8 @@ class Todo extends React.Component {
     
     componentDidMount = () => {
         if(this.state.user) {
-            this.unsubscribe = this.onCollectionUpdate;
+            this.onCollectionUpdate();
         }
-    }
-
-    componentWillUnmount = () => {
-        this.unsubscribe();
     }
 
     onCollectionUpdate = () => {
