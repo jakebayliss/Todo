@@ -1,67 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import List from './List';
 import HTML5Backend from 'react-dnd-html5-backend'
 import { DragDropContext } from 'react-dnd';
 import '../styles/app.css';
 import update from 'immutability-helper';
-import firebase from '../config/firebase';
-import "firebase/auth";
-import 'firebase/firestore';
+import Firebase from '../config/firebase';
 
-class Todo extends React.Component {
-    constructor(props){
-        super(props);
+const Todo = (props) => {
 
-        this.state = {
-            user: JSON.parse(localStorage.getItem('user')),
-            title: '',
-            lists: [],
-            loading: true
-        };
-        
-        this.db = firebase.firestore();
-        this.db.settings({
-            timestampsInSnapshots: true
-        });
-        this.ref = this.db.collection('lists');
-    }
-    
-    componentDidMount = () => {
-        if(this.state.user) {
-            this.onCollectionUpdate();
+    const [user, setUser] = useState(props.user);
+    const [listTitle, setListTitle] = useState('');
+    const [lists, setLists] = useState();
+
+    useEffect(() => {
+        if(user) {
+            Firebase.getLists(props.uid).then(lists => {
+                setLists(lists);
+                console.log(lists);
+            });
         }
-    }
-
-    onCollectionUpdate = () => {
-        let self = this;
-        const lists = [];
-
-        this.ref.where('uid', '==', self.state.user.uid).get()
-            .then(function(querySnapshot) {
-                querySnapshot.forEach((doc) => {
-                    lists.push({
-                        id: doc.id,
-                        uid: self.state.user.uid,
-                        title: doc.data().title,
-                        added: doc.data().added
-                    });
-                });
-            })
-            .then(function() {
-                self.setState({
-                    lists: lists,
-                    loading: false,
-                });
-            })
-            .catch(error => console.log(error));
-    }
+    });
         
-    listOnChange = (e) => {
+    listTitleOnChange = (e) => {
         if(e.key === 'Enter'){
             this.createList();
             return;
         }
-        this.setState({ title: e.target.value });
+        setListTitle(e.target.value);
     }
 
     createList = () => {
@@ -83,13 +48,13 @@ class Todo extends React.Component {
     }
 
     deleteList = (id) => {
-        let prevLists = this.state.lists;
+        let prevLists = lists;
         this.ref.doc(id).delete();
         const index = prevLists.findIndex(list => list.id === id);
         if(index) {
             prevLists.splice(index, 1);
         }
-        this.setState({ lists: prevLists });
+        setlists(prevLists);
     }
 
     editList = (id, newTitle) => {
@@ -110,29 +75,27 @@ class Todo extends React.Component {
     }
 
     resetIndex = () => {
-        var lists = this.state.lists;
-        lists.map((list, i) => {
+        var prevLists = lists;
+        prevLists.map((list, i) => {
             list.index = i;
         });
-        this.setState({ lists: lists });
+        setlists(prevLists);
     }
 
-    render(){
-        return (
-            <div className="container">
-                <div className="create-list">
-                    <input autoFocus type="text" className="list-text" placeholder="What's on your mind" value={this.state.title} onChange={this.listOnChange} onKeyPress={this.listOnChange} />
-                    <button className="list-button" onClick={this.createList}>Create</button>
-                </div>
-                <div className="lists">
-                    {this.state.lists.map(list => (
-                        <List list={list} title={list.title} id={list.id} key={list.id} index={list.index} editList={(id, title) => this.editList(id, title)}
-                            deleteList={this.deleteList.bind(this, list.id)} moveList={this.moveList} resetIndex={this.resetIndex} uid={this.state.uid}/>
-                    ))}
-                </div>
+    return (
+        <div className="container">
+            <div className="create-list">
+                <input autoFocus type="text" className="list-text" placeholder="What's on your mind" value={listTitle} onChange={this.listTitleOnChange} onKeyPress={this.listTitleOnChange} />
+                <button className="list-button" onClick={this.createList}>Create</button>
             </div>
-        );
-    }
+            <div className="lists">
+                {lists.map(list => (
+                    <List list={list}  key={list.id} editList={(id, title) => this.editList(id, title)}
+                        deleteList={this.deleteList.bind(this, list.id)} moveList={this.moveList} resetIndex={this.resetIndex} />
+                ))}
+            </div>
+        </div>
+    );
 }
 
 export default DragDropContext(HTML5Backend)(Todo);
