@@ -10,15 +10,15 @@
     padding: 5px 3px;
     background-color: rgb(100, 100, 100);
     border-radius: 5px;
-    font-family: 'Muli', sans-serif;
     display: flex;
     justify-content: space-between;
-    transition: background-color .5s;
+    transition: background-color .4s;
+    cursor: pointer;
 }
 
 .item:hover {
-    background-color: rgb(150, 150, 150);
-    transition: background-color 0s;
+    background-color: rgb(130, 130, 130);
+    transition: background-color .4s;
 }
 
 .item.done:hover {
@@ -47,21 +47,24 @@
 .item-checkbox {
     -webkit-appearance: none;
     background-color: white;
-    transition: background-color 1s;
     border-radius: 50%;
     min-width: 14px;
     height: 14px;
     margin-right: 8px;
     margin-top: 3px;
+    cursor: pointer;
 }
 
 .item-checkbox:focus {
     outline: none;
 }
 
+.item-checkbox:hover {
+    background-color: #9CFC97;
+}
+
 .item-checkbox:checked {
     background-color: yellowgreen;
-    transition: background-color 1s;
 }
 
 .delete-item-button {

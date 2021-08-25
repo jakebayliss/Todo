@@ -1,16 +1,15 @@
 body {
     background-color: rgb(25, 25, 25);
     color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 h1 {
-    font-family: 'Reem Kufi', sans-serif;
     font-size: 100px;
     margin: 0;
 }
 
 h2 {
-    font-family: 'Reem Kufi', sans-serif;
     letter-spacing: 2px;
 }
 
@@ -27,9 +26,8 @@ input[type="text"]:focus, input[type="password"]:focus {
 }
 
 button  {
-    font-family: 'Nunito', sans-serif;
     font-size: 18px;
-    border-radius: 5px;
+    border-radius: 3px;
     color: white;
     border: none;
     cursor: pointer;

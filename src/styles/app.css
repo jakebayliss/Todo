@@ -1,5 +1,6 @@
 #mindex-cap{
     color: yellowgreen;
+    font-family: 'Reem Kufi', sans-serif;
 }
 
 .login-page-container {
@@ -17,7 +18,6 @@
     vertical-align: middle;
     padding-top: 4%;
     font-size: 25px;
-    font-family: 'Muli', sans-serif;
 }
 
 .login-button {
@@ -74,10 +74,12 @@
     background-color: rgb(25, 25, 25);
     margin-right: 20px;
     width: 270px;
+    padding: 5px 10px;
 }
 
 .list-button {
     background-color: yellowgreen;
+    padding: 5px 10px;
 }
 
 .list-button:hover {
@@ -107,7 +109,6 @@
 
 .logout-container p {
     cursor: pointer;
-    font-family: 'Reem Kufi', sans-serif;
     margin: 3px 0;
     text-align: right;
 }
@@ -117,7 +118,6 @@
 }
 
 .greeting {
-    font-family: 'Reem Kufi', sans-serif;
     letter-spacing: 1px;
     font-size: 23px;
     margin: 11px 0 24px 0;
