@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import Todo from './components/Todo';
@@ -9,10 +10,9 @@ import Firebase from './config/firebase';
 
 import './styles/app.css';
 
-export default function App() {
-
-    const [user, setUser] = useState({});
-    const [activeElement, setActiveElement] = useState();
+const App = () => {
+    const [user, setUser] = useState(null);
+    const [activeElement, setActiveElement] = useState(null);
     const elements = {
         Login: 1,
         Signup: 2
@@ -20,13 +20,22 @@ export default function App() {
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
-        Firebase.auth.onAuthStateChanged(user => {
-            setUser(user);
-            console.log(user);
+        const unsubscribe = Firebase.auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUser(user); 
+            }
+            else setUser(null);
         });
-    });
+        return () => unsubscribe();
+    }, []);
 
-    login = () => {
+    useEffect(() => {
+        if(user) {
+            console.log('user', user);
+        }
+    }, [user]);
+
+    const login = () => {
         if(activeElement === elements.Login) {
             setActiveElement(null);
             document.getElementById('login-button').style.backgroundColor = '#404040';
@@ -37,7 +46,7 @@ export default function App() {
         return <Login />;
     }
 
-    register = () => {
+    const register = () => {
         if(activeElement === elements.Signup) {
             setActiveElement(null);
             document.getElementById('signup-button').style.backgroundColor = '#404040';
@@ -48,7 +57,7 @@ export default function App() {
         return <Signup />;
     }
 
-    logout = () => {
+    const logout = () => {
         Firebase.auth().signOut();
         setUser({});
     }
@@ -61,7 +70,7 @@ export default function App() {
             {user && (
                 <div className="logout-container">
                     <p>{ user.email } </p>
-                    <p onClick={this.logout}>Logout</p>
+                    <p onClick={() => logout()}>Logout</p>
                 </div>
             )}
             {user && (
@@ -72,8 +81,8 @@ export default function App() {
                 <Router>
                     <div>
                         <div className="login-page-container">
-                            <Link to="/login" id="login-button" className="login-button" onClick={this.login}>Login</Link>
-                            <Link to="/register" id="signup-button" className="signup-button" onClick={this.register}>Sign Up</Link>
+                            <Link to="/login" id="login-button" className="login-button" onClick={() => login()}>Login</Link>
+                            <Link to="/register" id="signup-button" className="signup-button" onClick={() => register()}>Sign Up</Link>
                         </div>
                         <Route path="/login" component={Login} />
                         <Route path="/register" component={Register} />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { findDOMNode } from 'react-dom'
 import { DragSource, DropTarget } from 'react-dnd';
 import flow from 'lodash.flow';
@@ -64,85 +64,49 @@ const itemTarget = {
 	}
 }
 
-class Item extends React.Component {
-    constructor(props) {
-        super(props);
+const Item = ({item, moveItem, editItem, toggleCompleted, deleteItem, connectDragSource, connectDropTarget, isDragging}) => {
 
-        this.state = {
-            item: props.item,
-            previousValue: '',
-            modalIsOpen: false
-        };
+    const [previousValue, setPreviousValue] = useState('');
+    const [isModalOpen, setIsModelOpen] = useState(false);
 
-        console.log(props.item);
-    }
-
-    handleClick = (e) => {
+    const handleClick = (e) => {
         if(e.target.tagName === 'INPUT') {
-            this.toggleCompleted();
+            toggleCompleted(item.id, !item.done);
             return;
         }
-        this.openModal();
-    }
-    
-    toggleCompleted = () => {
-        let item = this.state.item;
-        this.props.toggleCompleted(this.state.item.id, this.state.item.done ? false : true);
-        item.done = this.state.item.done ? false : true;
-        this.setState({ item: item });
-    }
-    
-    deleteItem = () => {
-        this.props.delete(this.state.item.id);
-        this.setState({ modalIsOpen: false });
-    }
-    
-    openModal = (e) => {
-        this.setState({ modalIsOpen: true });
+        setIsModelOpen(true);
     }
 
-    placeholder = () => {
-        return;
+    const saveChanges = (newText, notes) => {
+        editItem(item.id, newText, notes);
+        setIsModelOpen(false);
     }
 
-    saveChanges = (newText, notes) => {
-        let item = this.state.item;
-        item.text = newText;
-        item.notes = notes;
-        this.props.editItem(item);
-        this.setState({ modalIsOpen: false, item: item });
-    }
-
-    cancel = () => {
-        this.setState({ modalIsOpen: false });
-    }
-
-    render(){
-        const { isDragging, connectDragSource, connectDropTarget } = this.props
-
+    const display = () => {
         let opacity = isDragging ? 0 : 1;
-
-        return (
-            connectDragSource &&
-            connectDropTarget &&
-            connectDragSource(
-                connectDropTarget(
-                    <div className="item-container">
-                        <li className={this.state.item.done ? "item done" : "item"} style={{opacity}} onClick={this.handleClick} >
-                            <div className="item-inner">
-                                <input className="item-checkbox" checked={this.state.item.done} type="checkbox" onChange={this.placeholder}/>
-                                {this.state.item.text}
-                            </div>
-                        </li>
-                        {this.state.modalIsOpen && (
-                            <ItemModal text={this.state.item.text} notes={this.state.item.notes} delete={this.deleteItem} isOpen={this.state.modalIsOpen} save={this.saveChanges}
-                                cancel={this.cancel} />
-                        )}
-                    </div>
-                ),
-            )
-        );
+        return {opacity};
     }
+
+    return (
+        connectDragSource &&
+        connectDropTarget &&
+        connectDragSource(
+            connectDropTarget(
+                <div className="item-container">
+                    <li className={item.done ? "item done" : "item"} /*style={() => display()}*/ onClick={(e) => handleClick(e)} >
+                        <div className="item-inner">
+                            <input className="item-checkbox" checked={item.done} type="checkbox" onChange={(e) => console.log(e)}/>
+                            {item.text}
+                        </div>
+                    </li>
+                    {isModalOpen && (
+                        <ItemModal text={item.text} notes={item.notes} deleteItem={() => deleteItem(item.id)} isOpen={isModalOpen} save={(newText, notes) => saveChanges(newText, notes)}
+                            cancel={() => setIsModelOpen(false)} />
+                    )}
+                </div>
+            ),
+        )
+    );
 }
 
 export default flow(

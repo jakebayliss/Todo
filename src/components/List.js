@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Item from './Item';
 import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -67,34 +67,37 @@ const listTarget = {
 	}
 }
 
-const List = () => {
+const List = ({list, editList, deleteList, moveList, presetIndex, connectDragSource, connectDropTarget, isDragging}) => {
 
-    const [list, setList] = useState(props.list);
+    const [listTitle, setListTitle] = useState(list.title);
     const [text, setText] = useState('');
     const [previousValue, setPreviousValue] = useState();
     const [editing, setEditing] = useState(false);
     const [items, setItems] = useState([]);
     const [completedItems, setCompletedItems] = useState(0);
 
-    useState(() => {
-        Firebase.getItems(list.id).then(items => {
-            setItems(items);
-        });
-    })
+    useEffect(() => {
+        (async () => {
+            setItems(await Firebase.getItems(list.id));
+        })();
+    }, []);
 
-    itemOnChange = (e) => {
+    useEffect(() => {
+        console.log(`List ${list.id} items: ${items}`);
+    }, [items]);
+
+    const itemOnChange = (e) => {
         if(e.key === 'Enter'){
-            this.addItem();
+            addItem();
             return;
         }
         setText(e.target.value);
     }
 
-    addItem = () => {
+    const addItem = async () => {
         if(text) {
             let item = {
                 listId: list.id,
-                id: this.ref.doc().id,
                 text: text,
                 notes: '',
                 done: false,
@@ -102,51 +105,50 @@ const List = () => {
                 added: Date.now(),
                 updated: null
             };
-            
-            this.ref.add(item)
-                .then(function() {
-                    const prevItems = items;
-                    prevItems.push(item);
-                    setText('');
-                });
+
+            const itemId = await Firebase.addItem(item);
+            item.id = itemId;
+            setItems([...items, item]);
+            setText('');
         }
     }
 
-    handleEdit = () => {
+    const handleEdit = () => {
         setEditing(true);
-        setPreviousValue(title);
+        setPreviousValue(listTitle);
     }
 
-    handleDone = (e) => {
+    const handleDone = (e) => {
         if(e.key === 'Enter'){
-            if(!title) {
+            if(!listTitle) {
                 setTitle(previousValue);
             }
-            props.editList(listid, title);
+            editList(list.id, listTitle);
             setEditing(false);
         }
     }
 
-    deleteItem = (id) => {
-        let prevItems = this.state.items;
-        this.ref.doc(id).delete();
-        const index = prevItems.findIndex(item => item.id === id);
-        if(index) {
-            prevItems.splice(index, 1);
-        }
-        this.setState({ items: prevItems });
+    const deleteItem = async (id) => {
+        await Firebase.deleteItem(id);
+        setItems(items.filter(x => x.id != id));
     }
 
-    editItem = (item) => {
-        this.database.child(item.id).update({ text: item.text, notes: item.notes, updated: Date.now() });
+    const editItem = async (id, text, notes) => {
+        let item = items.filter(x => x.id == id)[0];
+        item.text = text;
+        item.notes = notes;
+        console.log('updated item', item)
+        await Firebase.updateItem(item);
     }
 
-    toggleCompleted = (id, value) => {
-        this.database.child(id).update({ done: value });
-        this.updateItemCounter(value, false);
+    const toggleCompleted = async (id, value) => {
+        let item = items.filter(x => x.id == id)[0];
+        item.done = !item.done;
+        await Firebase.updateItem(item);
+        updateItemCounter(value, false);
     }
 
-    updateItemCounter = (done, deleted) => {
+    const updateItemCounter = (done, deleted) => {
         if(!done && deleted) {
             return;
         }
@@ -162,7 +164,7 @@ const List = () => {
         }
     }
 
-    moveItem = (dragIndex, hoverIndex) => {
+    const moveItem = (dragIndex, hoverIndex) => {
         const dragItem = items[dragIndex];
 
 		this.setState(
@@ -174,7 +176,7 @@ const List = () => {
         );
     }
     
-    resetIndex = () => {
+    const resetIndex = () => {
         var prevItems = items;
         prevItems.map((item, i) => {
             item.index = i;
@@ -184,12 +186,11 @@ const List = () => {
         setItems(prevItems);
     };
 
-    updatestuff = () => {
-        const { isDragging, connectDragSource, connectDropTarget } = props;
+    const titleDisplay = () => {
         let viewDisplay = {};
         let editDisplay = {};
 
-        if(this.state.editing) {
+        if(editing) {
             viewDisplay.display = 'none';
         }
         else {
@@ -197,6 +198,7 @@ const List = () => {
         }
 
         viewDisplay.opacity = isDragging ? 0 : 1;
+        return { viewDisplay, editDisplay }
     }
 
     return (
@@ -206,25 +208,30 @@ const List = () => {
             connectDropTarget(
                 <div className="list">
                     <div className="list-banner">
-                        {this.state.items.length > 0 && (
-                            <p className="counter">{this.state.completedItems}/{this.state.items.length}</p>
+                        {items.length > 0 && (
+                            <p className="counter">{completedItems}/{items.length}</p>
                         )}
-                        <h2 className="list-title" value={this.state.title} onDoubleClick={this.handleEdit} style={viewDisplay}>{this.state.title}</h2>
-                        <input className="list-title edit" value={this.state.title} type="text" onKeyDown={this.handleDone} 
-                            onChange={e => setTitle(e.target.value)} style={editDisplay} />
-                        <button className="remove-list-button" onClick={this.props.deleteList}>&times;</button>
+                        <h2 className="list-title" value={list.title} onDoubleClick={() => handleEdit()} style={titleDisplay().viewDisplay}>{list.title}</h2>
+                        <input className="list-title edit" value={listTitle} type="text" onKeyDown={e => handleDone(e)} 
+                            onChange={e => setListTitle(e.target.value)} style={titleDisplay().editDisplay} />
+                        <button className="remove-list-button" onClick={() => deleteList(list.id)}>&times;</button>
                     </div>
                     <div className="add-item">
-                        <input type="text" id={this.props.title + "-text"} className="item-text" placeholder="Add an item" 
-                            value={this.state.text} onChange={this.itemOnChange} onKeyDown={this.itemOnChange} />
-                        <button className="item-button" onClick={this.addItem}>&#43;</button>
+                        <input type="text" id={list.title + "-text"} className="item-text" placeholder="Add an item" 
+                            value={text} onChange={e => itemOnChange(e)} onKeyDown={e => itemOnChange(e)} />
+                        <button className="item-button" onClick={() => addItem()}>&#43;</button>
                     </div>
                     <ul className ="items">
-                        {this.state.items.map(item => (
-                            <Item item={item} done={item.done} key={item.index} moveItem={this.moveItem} editItem={(item) => this.editItem(item)} toggleCompleted={(id, value) => this.toggleCompleted(id, value)}
-                                delete={(id) => this.deleteItem(id)} 
-                                resetIndex={this.resetIndex}/>
-                        ))}
+                        {items && items.length > 0 && (
+                            items.map(item => (
+                                <Item item={item} done={item.done} key={item.id} 
+                                    moveItem={(dragIndex, hoverIndex) => moveItem(dragIndex, hoverIndex)} 
+                                    editItem={(id, text, notes) => editItem(id, text, notes)} 
+                                    toggleCompleted={(id, value) => toggleCompleted(id, value)} 
+                                    deleteItem={(id) => deleteItem(id)} 
+                                    resetIndex={() => resetIndex()}/>
+                            ))
+                        )}
                     </ul>
                 </div>
             ),

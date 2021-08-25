@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import List from './List';
 import HTML5Backend from 'react-dnd-html5-backend'
 import { DragDropContext } from 'react-dnd';
@@ -6,63 +6,55 @@ import '../styles/app.css';
 import update from 'immutability-helper';
 import Firebase from '../config/firebase';
 
-const Todo = (props) => {
-
-    const [user, setUser] = useState(props.user);
+const Todo = ({user, uid}) => {
     const [listTitle, setListTitle] = useState('');
-    const [lists, setLists] = useState();
+    const [lists, setLists] = useState([]);
 
     useEffect(() => {
-        if(user) {
-            Firebase.getLists(props.uid).then(lists => {
-                setLists(lists);
-                console.log(lists);
-            });
+        (async () => {
+            if(user) {
+                setLists(await Firebase.getLists(uid));
+            }
+        })();
+    }, [user]);
+
+    useEffect(() => {
+        if(lists) {
+            console.log(`User ${user.id} lists: ${lists}`);
         }
-    });
+    }, [lists]);
         
-    listTitleOnChange = (e) => {
+    const listTitleOnChange = (e) => {
         if(e.key === 'Enter'){
-            this.createList();
+            createList();
             return;
         }
         setListTitle(e.target.value);
     }
 
-    createList = () => {
+    const createList = async () => {
         let list = {
-            uid: this.state.user.uid,
-            title: this.state.title,
+            uid: user.uid,
+            title: listTitle,
             added: Date.now()
         }
-        let self = this;
 
-        this.ref.add(list)
-            .then(function() {
-                list.id = self.ref.doc().id;
-                const prevLists = self.state.lists;
-                prevLists.push(list);
-                self.setState({ lists: prevLists, title: '' });
-            })
-            .catch(error => console.log(error));
+        const listId = await Firebase.createList(list);
+        list.id = listId;
+        setLists([...lists, list]);
+        setListTitle('');
     }
 
-    deleteList = (id) => {
-        let prevLists = lists;
-        this.ref.doc(id).delete();
-        const index = prevLists.findIndex(list => list.id === id);
-        if(index) {
-            prevLists.splice(index, 1);
-        }
-        setlists(prevLists);
+    const deleteList = async (id) => {
+        await Firebase.deleteList(id);
+        setLists(lists.filter(x => x.id != id));
     }
 
-    editList = (id, newTitle) => {
-        //this.database.child(id).update({ title: newTitle });
+    const editList = async (id, title) => {
+        await Firebase.updateList(id, title);
     }
 
-    moveList = (dragIndex, hoverIndex) => {
-        const { lists } = this.state
+    const moveList = (dragIndex, hoverIndex) => {
         const dragList = lists[dragIndex]
 
 		this.setState(
@@ -74,7 +66,7 @@ const Todo = (props) => {
         );
     }
 
-    resetIndex = () => {
+    const resetIndex = () => {
         var prevLists = lists;
         prevLists.map((list, i) => {
             list.index = i;
@@ -85,14 +77,17 @@ const Todo = (props) => {
     return (
         <div className="container">
             <div className="create-list">
-                <input autoFocus type="text" className="list-text" placeholder="What's on your mind" value={listTitle} onChange={this.listTitleOnChange} onKeyPress={this.listTitleOnChange} />
-                <button className="list-button" onClick={this.createList}>Create</button>
+                <input autoFocus type="text" className="list-text" placeholder="What's on your mind" 
+                    value={listTitle} onChange={e => listTitleOnChange(e)} onKeyPress={e => listTitleOnChange(e)} />
+                <button className="list-button" onClick={() => createList()}>Create</button>
             </div>
             <div className="lists">
-                {lists.map(list => (
-                    <List list={list}  key={list.id} editList={(id, title) => this.editList(id, title)}
-                        deleteList={this.deleteList.bind(this, list.id)} moveList={this.moveList} resetIndex={this.resetIndex} />
-                ))}
+                {lists && lists.length > 0 && (
+                    lists.map(list => (
+                        <List list={list} key={list.id} editList={(id, title) => editList(id, title)}
+                            deleteList={(id) => deleteList(id)} moveList={(dragIndex, hoverIndex) => moveList(dragIndex, hoverIndex)} resetIndex={() => resetIndex()} />
+                    ))
+                )}
             </div>
         </div>
     );
